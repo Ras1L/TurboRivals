@@ -1,0 +1,11 @@
+build/
+cmake-build-*/
+
+*.o
+*.out
+*.so
+*.a
+
+*.log
+*.tmp
+
