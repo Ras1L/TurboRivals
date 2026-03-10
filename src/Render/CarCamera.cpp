@@ -1,24 +1,24 @@
 #include "Render/CarCamera.hpp"
-
-#include "raylib.h"
 #include "raymath.h"
+
+const Vector3 up{ 0.0f, 1.0f, 0.0f };
+const Vector3 targetOffset{ 0.0f, 0.0f, -1.0f };
+const float   BOTTOM_HEIGHT = 5.f;
+
+static Vector2 lean = { 0 };
+static float headTimer = 0.0f;
+static float walkLerp = 0.0f;
 
 CarCamera::CarCamera()
 {
-    car.position = {0.f, 5.f, 10.f};
-
-    camera.position = {
-        car.position.x,
-        car.position.y + BOTTOM_HEIGHT,
-        car.position.z,
-    };
+    camera.position = { 0 };
     camera.target = {0.f, 0.f, 0.f};
     camera.up = {0.f, 1.f, 0.f};
     camera.fovy = 60.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 }
 
-void CarCamera::UpdateCamera()
+void CarCamera::UpdateCamera(Vector2 lookRotation)
 {
      // Left and right
     Vector3 yaw = Vector3RotateByAxisAngle(targetOffset, up, lookRotation.x);
@@ -57,4 +57,13 @@ void CarCamera::UpdateCamera()
 
     camera.position = Vector3Add(camera.position, Vector3Scale(bobbing, walkLerp));
     camera.target = Vector3Add(camera.position, pitch);
+}
+
+void CarCamera::UpdateCameraPos(Vector3 pos)
+{
+    camera.position = {
+        pos.x,
+        pos.y + BOTTOM_HEIGHT,
+        pos.z
+    };
 }

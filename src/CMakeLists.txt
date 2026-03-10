@@ -1,9 +1,11 @@
 add_executable(${PROJECT_NAME} 
     main.cpp
+    Core/Physics.cpp
     App/Application.cpp
     Render/CarCamera.cpp
     Render/Level.cpp
     UI/Window.cpp
+    UI/InputManager.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

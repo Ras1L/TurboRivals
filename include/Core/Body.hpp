@@ -1,9 +1,9 @@
-#ifndef CORE_CARMOVEMENT_HPP
-#define CORE_CARMOVEMENT_HPP
+#ifndef CORE_BODY_HPP
+#define CORE_BODY_HPP
 
 #include "raylib.h"
 
-struct CarMovement {
+struct Body {
     Vector3 position;
     Vector3 velocity;
     Vector3 dir;
