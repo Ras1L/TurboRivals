@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-void CarRenderer::DrawCar(const Car& car, const ResourceManager& res_manager)
+void CarRenderer::DrawCar(const Car& car, const ResourceManager& res_manager) const
 {
     auto model = res_manager.GetModelByID(car.model_id);
 

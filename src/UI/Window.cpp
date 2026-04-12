@@ -2,14 +2,14 @@
 
 #include "raylib.h"
 
-void Window::create()
+void Window::Create()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TurboRivals");
     DisableCursor();
     SetTargetFPS(TARGET_FPS);
 }
 
-void Window::close()
+void Window::Close()
 {
     CloseWindow();
 }

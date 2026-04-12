@@ -1,7 +1,7 @@
 #ifndef UI_INPUTMANAGER_HPP
 #define UI_INPUTMANAGER_HPP
 
-#include "UI/Input.hpp"
+#include "Core/Input.hpp"
 
 class InputManager {
 public:

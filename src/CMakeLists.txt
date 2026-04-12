@@ -1,10 +1,13 @@
 add_executable(${PROJECT_NAME} 
     main.cpp
-    Core/Physics.cpp
     App/Application.cpp
+    Core/Physics.cpp
+    Core/GameWorld.cpp
+    Core/CarPhysicsComponent.cpp
     Render/CarCamera.cpp
     Render/LevelRenderer.cpp
     Render/CarRenderer.cpp
+    Render/RenderSystem.cpp
     Render/ResourceManager.cpp
     UI/Window.cpp
     UI/InputManager.cpp

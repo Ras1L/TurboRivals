@@ -1,19 +1,11 @@
 #include "Render/LevelRenderer.hpp"
+#include "Render/ResourceManager.hpp"
+#include "raylib.h"
 
-void LevelRenderer::DrawLevel()
+void LevelRenderer::DrawEnvironment(EnvironmentID id, const ResourceManager& res_manager) const
 {
-    for (int y = -floorExtent; y < floorExtent; y++)
-    {
-        for (int x = -floorExtent; x < floorExtent; x++)
-        {
-            if ((y & 1) && (x & 1))
-            {
-                DrawPlane({ x*tileSize, 0.0f, y*tileSize}, { tileSize, tileSize }, tileColor1);
-            }
-            else if (!(y & 1) && !(x & 1))
-            {
-                DrawPlane({ x*tileSize, 0.0f, y*tileSize}, { tileSize, tileSize }, LIGHTGRAY);
-            }
-        }
-    }
+    Model model = res_manager.GetEnvironmentByID(id);
+    static const Vector3 pos = {0.f, -164.f, 0.f};
+
+    DrawModel(model, pos, 300.f, WHITE);
 }

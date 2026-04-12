@@ -1,37 +1,33 @@
 #include "App/Application.hpp"
+#include "Core/GameWorld.hpp"
 #include "Core/ModelID.hpp"
 #include "raylib.h"
 
 void Application::exec()
 {
-    window.create();
-    physics.Init();
-    res_manager.InitModels();
-    player.model_id = ModelID::PORSCHE_911_CARRERA_993;
+    window.Create();
+    render.Init();
+    
+    Car* local_player = world.CreateCar(0.f,0.f, ModelID::PORSCHE_911_CARRERA_993);
 
     while (!WindowShouldClose())
     {
         float dt = GetFrameTime();
 
-        auto input {input_manager.GetInput()};
-        physics.Update(input.forward, input.brake, input.sideway, dt);
-        player.transform = physics.GetVehicleTransform();
+        world.Update(input_manager.GetInput(), dt);
+        car_camera.UpdateCameraTransform(local_player->physic_model.GetVehicleTransform());
 
-        car_camera.UpdateCameraTransform(player.transform);
-        //car_camera.UpdateCamera(input.lookRotation);
-        
         BeginDrawing();
+        ClearBackground(SKYBLUE);
 
-        ClearBackground(RAYWHITE);
-        
         BeginMode3D(car_camera.camera);
-            car_renderer.DrawCar(player, res_manager);
-            level_renderer.DrawLevel();
+            render.DrawCar(*local_player);
+            render.DrawEnvironment(EnvironmentID::SNOW);
         EndMode3D();
 
         EndDrawing();
     }
 
-    res_manager.UnloadModels();
-    window.close();
+    render.Destroy();
+    window.Close();
 }

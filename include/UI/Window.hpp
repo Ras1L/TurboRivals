@@ -7,8 +7,8 @@ const int TARGET_FPS    = 60;
 
 class Window {
 public:
-    void create();
-    void close();
+    void Create();
+    void Close();
 };
 
 #endif

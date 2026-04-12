@@ -6,7 +6,7 @@
 
 class CarRenderer {
 public:
-    void DrawCar(const Car& car, const ResourceManager& res_manager);
+    void DrawCar(const Car& car, const ResourceManager& res_manager) const;
 };
 
 #endif
