@@ -1,6 +1,6 @@
 #include "Render/RenderSystem.hpp"
-#include "Render/ResourceManager.hpp"
 
+#include "raymath.h"
 #include "rlgl.h" // дебри raylib 
 
 const double near = 0.1f;
@@ -14,19 +14,36 @@ void RenderSystem::Init()
 
 void RenderSystem::DrawCar(const Car& car) const
 {
-    car_renderer.DrawCar(car, res_manager);
+    auto model = res_manager.GetModelByID(car.model_comp.mid);
+    
+    Matrix rot   = QuaternionToMatrix(car.model_comp.transform.rot);
+    Matrix trans = MatrixTranslate(
+        car.model_comp.transform.pos.x,
+        car.model_comp.transform.pos.y,
+        car.model_comp.transform.pos.z
+    );
+    model.transform = MatrixMultiply(rot, trans);
+
+    DrawModel(model, {0.f, 0.f, 0.f}, 1.f, WHITE);
 }
 
 void RenderSystem::DrawCars(std::span<const Car* const> cars) const
 {
     for (auto car : cars) {
-        car_renderer.DrawCar(*car, res_manager);
+        DrawCar(*car);
     }
 }
 
-void RenderSystem::DrawEnvironment(EnvironmentID id) const
+void RenderSystem::DrawEnvironment(const Environment& environment) const
 {
-    level_renderer.DrawEnvironment(id, res_manager);
+    auto model = res_manager.GetModelByID(environment.model_comp.mid);
+    model.transform = MatrixTranslate(
+        environment.model_comp.transform.pos.x,
+        environment.model_comp.transform.pos.y,
+        environment.model_comp.transform.pos.z
+    );
+
+    DrawModel(model, {0.f, 0.f, 0.f}, 1.f, WHITE);
 }
 
 void RenderSystem::Destroy()

@@ -1,5 +1,5 @@
-#ifndef CORE_CAR_PHYSICS_COMPONENT_HPP
-#define CORE_CAR_PHYSICS_COMPONENT_HPP
+#ifndef CORE_VEHICLE_PHYSICS_COMPONENT_HPP
+#define CORE_VEHICLE_PHYSICS_COMPONENT_HPP
 
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
@@ -11,9 +11,9 @@
 #include "Core/Input.hpp"
 #include <memory>
 
-class CarPhysicsComponent {
+class VehiclePhysicsComponent {
 public:
-    void Init(Physics& physic_world);
+    void Init(Vector3 pos, Physics& physic_world);
     void Destroy(Physics& physic_world);
 
     void        Update(Input input, float dt);

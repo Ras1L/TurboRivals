@@ -1,4 +1,4 @@
-#include "Core/CarPhysicsComponent.hpp"
+#include "Core/VehiclePhysicsComponent.hpp"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 
@@ -15,14 +15,14 @@ const float steerReturn = 2.f;
 const float maxEngine = 5000.0f;
 const float maxSteer  = 0.5f;
 
-void CarPhysicsComponent::Init(Physics& physic_world)
+void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
 {
     // CHASSIS
     chassisShape = std::make_unique<btBoxShape>(btVector3{1.f, 0.5f, 2.f});
 
     btTransform startTransform;
     startTransform.setIdentity();
-    startTransform.setOrigin({0.f, 0.5f, 0.f});
+    startTransform.setOrigin({pos.x, pos.y, pos.z});
 
     btScalar  mass = 800.f;
     btVector3 inertia{0.f, 0.f, 0.f};
@@ -62,7 +62,7 @@ void CarPhysicsComponent::Init(Physics& physic_world)
     }
 }
 
-void CarPhysicsComponent::Update(Input input, float dt)
+void VehiclePhysicsComponent::Update(Input input, float dt)
 {
     static float engine     = 0.f;
     static float steering   = 0.f;
@@ -123,7 +123,7 @@ void CarPhysicsComponent::Update(Input input, float dt)
     vehicle->setSteeringValue(steering, 1);
 }
 
-Transform3D CarPhysicsComponent::GetVehicleTransform()
+Transform3D VehiclePhysicsComponent::GetVehicleTransform()
 {
     auto t = vehicle->getChassisWorldTransform();
     Transform3D tr;
@@ -137,7 +137,7 @@ Transform3D CarPhysicsComponent::GetVehicleTransform()
     return tr;
 }
 
-void CarPhysicsComponent::Destroy(Physics& physic_world)
+void VehiclePhysicsComponent::Destroy(Physics& physic_world)
 {
     physic_world.removeVehicle(vehicle.get());
 }

@@ -1,14 +1,12 @@
 #ifndef CORE_CAR_HPP
 #define CORE_CAR_HPP
 
-#include "Core/CarPhysicsComponent.hpp"
-#include "Core/Transform3D.hpp"
-#include "Core/ModelID.hpp"
+#include "Core/VehiclePhysicsComponent.hpp"
+#include "Core/ModelComponent.hpp"
 
 struct Car {
-    ModelID             model_id;
-    Transform3D         transform;
-    CarPhysicsComponent physic_model;
+    ModelComponent          model_comp;
+    VehiclePhysicsComponent vehicle_physics_comp;
 };
 
 #endif
