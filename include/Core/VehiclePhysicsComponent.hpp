@@ -30,6 +30,10 @@ private:
     std::unique_ptr<btVehicleRaycaster>   raycaster;
 
     std::unique_ptr<btRaycastVehicle> vehicle;
+
+    float engine     = 0.f;
+    float steering   = 0.f;
+    float brakeForce = 0.f;
 };
 
 #endif

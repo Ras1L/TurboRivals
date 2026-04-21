@@ -10,7 +10,9 @@ ResourceManager::ResourceManager()
         "assets/models/ps1_gt1-style_model_-_1994_kineto_rm-x.glb",
         "assets/models/ps1_gt1-style_model_-_1996_horai_bx300.glb",
     
-        "assets/environments/3d_skybox_montain__game-ready.glb"
+        "assets/environments/3d_skybox_montain__game-ready.glb",
+
+        "assets/tracks/race_track__low_poly_v2.glb"
     };
 }
 

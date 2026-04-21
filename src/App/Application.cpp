@@ -10,7 +10,8 @@ void Application::exec()
     render.Init();
     
     Car* local_player = world.CreateCar(0.f,0.f, ModelID::CAR__PORSCHE_911_CARRERA_993);
-    Environment env{{ModelID::ENV__SNOW_MOUNTAINS}};
+    Environment env {{ModelID::ENV__SNOW_MOUNTAINS}};
+    Environment track {{ModelID::TRK__CIRCUIT8_BRIDGE}};
 
     while (!WindowShouldClose())
     {
@@ -25,6 +26,7 @@ void Application::exec()
         BeginMode3D(car_camera.camera);
             render.DrawCar(*local_player);
             render.DrawEnvironment(env);
+            render.DrawEnvironment(track);
         EndMode3D();
 
         EndDrawing();

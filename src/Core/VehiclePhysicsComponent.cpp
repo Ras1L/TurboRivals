@@ -12,7 +12,7 @@ const float engineDecay = 3000.0f;
 const float steerSpeed  = 1.f;
 const float steerReturn = 2.f;
 
-const float maxEngine = 5000.0f;
+const float maxEngine = 7000.0f;
 const float maxSteer  = 0.5f;
 
 void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
@@ -24,14 +24,14 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
     startTransform.setIdentity();
     startTransform.setOrigin({pos.x, pos.y, pos.z});
 
-    btScalar  mass = 800.f;
+    btScalar  mass = 1100.f;
     btVector3 inertia{0.f, 0.f, 0.f};
     chassisShape->calculateLocalInertia(mass, inertia);
 
     motion = std::make_unique<btDefaultMotionState>(startTransform);
     btRigidBody::btRigidBodyConstructionInfo chassisCI(mass, motion.get(), chassisShape.get(), inertia);
     chassis = std::make_unique<btRigidBody>(chassisCI);
-    chassis->setActivationState(DISABLE_DEACTIVATION); // Машина без этого вырубается сама по себе и не едет
+    chassis->setActivationState(DISABLE_DEACTIVATION); // Если это не выкл. короче машина вырубается сама по себе и не едет
 
     physic_world.addRigidBody(chassis.get());
 
@@ -64,10 +64,6 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
 
 void VehiclePhysicsComponent::Update(Input input, float dt)
 {
-    static float engine     = 0.f;
-    static float steering   = 0.f;
-    static float brakeForce = 0.f;
-
     // ДВИЖЕНИЕ
     if (input.forward)
         engine += input.forward * engineAccel * dt;
