@@ -24,6 +24,7 @@ public:
     void addVehicle(btRaycastVehicle* v);
     void removeVehicle(btRaycastVehicle* v);
     void addRigidBody(btRigidBody* rb);
+    void removeRigidBody(btRigidBody* rb);
 
     std::unique_ptr<btVehicleRaycaster> createVehicleRaycaster();
 

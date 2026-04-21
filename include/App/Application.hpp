@@ -12,10 +12,11 @@ public:
     void exec();
 
 private:
-    Window        window;
-    InputManager  input_manager;
-    CarCamera     car_camera;
-    RenderSystem  render;
+    Window          window;
+    InputManager    input_manager;
+    CarCamera       car_camera;
+    ResourceManager res_manager;
+    RenderSystem    render;
 
     GameWorld world;
 };

@@ -7,11 +7,11 @@
 void Application::exec()
 {
     window.Create();
-    render.Init();
+    res_manager.InitModels();
     
-    Car* local_player = world.CreateCar(0.f,0.f, ModelID::CAR__PORSCHE_911_CARRERA_993);
-    Environment env {{ModelID::ENV__SNOW_MOUNTAINS}};
-    Environment track {{ModelID::TRK__CIRCUIT8_BRIDGE}};
+    Car*        local_player = world.CreateCar(0.f, 0.f, ModelID::CAR__PORSCHE_911_CARRERA_993);
+    Track*      track        = world.CreateTrack(res_manager.GetCollisionMeshDataByID(ModelID::TRK__CIRCUIT8_BRIDGE), ModelID::TRK__CIRCUIT8_BRIDGE);
+    Environment env          = {{ModelID::ENV__SNOW_MOUNTAINS}};
 
     while (!WindowShouldClose())
     {
@@ -24,14 +24,14 @@ void Application::exec()
         ClearBackground(SKYBLUE);
 
         BeginMode3D(car_camera.camera);
-            render.DrawCar(*local_player);
-            render.DrawEnvironment(env);
-            render.DrawEnvironment(track);
+            render.DrawCar(*local_player, res_manager);
+            render.DrawStaticModel(env.model_comp, res_manager);
+            render.DrawStaticModel(track->model_comp, res_manager);
         EndMode3D();
 
         EndDrawing();
     }
 
-    render.Destroy();
+    res_manager.UnloadModels();
     window.Close();
 }

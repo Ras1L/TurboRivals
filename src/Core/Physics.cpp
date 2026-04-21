@@ -19,14 +19,6 @@ Physics::Physics()
     world      = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), config.get());
 
     world->setGravity({0.f, -9.8f, 0.f});
-
-    // GROUND
-    groundShape  = std::make_unique<btStaticPlaneShape>(btVector3{0.f, 1.f, 0.f}, 0.f);
-    groundMotion = std::make_unique<btDefaultMotionState>(btTransform::getIdentity());
-    btRigidBody::btRigidBodyConstructionInfo groundCI(0.f, groundMotion.get(), groundShape.get());
-    groundBody   = std::make_unique<btRigidBody>(groundCI);
-
-    world->addRigidBody(groundBody.get());
 }
 
 void Physics::Update(float dt)
@@ -47,6 +39,11 @@ void Physics::removeVehicle(btRaycastVehicle* v)
 void Physics::addRigidBody(btRigidBody* rb)
 {
     world->addRigidBody(rb);
+}
+
+void Physics::removeRigidBody(btRigidBody* rb)
+{
+    world->removeRigidBody(rb);
 }
 
 std::unique_ptr<btVehicleRaycaster> Physics::createVehicleRaycaster()

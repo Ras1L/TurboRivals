@@ -10,3 +10,4 @@ cmake-build-*/
 *.tmp
 
 .cache/
+.vscode/

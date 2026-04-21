@@ -9,19 +9,11 @@
 
 class RenderSystem {
 public:
-    RenderSystem() = default;
-    RenderSystem(const RenderSystem&) = delete;
-    RenderSystem& operator=(const RenderSystem&) = delete;
+    RenderSystem();
 
-    void Init();
-    void Destroy();
-
-    void DrawCar(const Car& car) const;
-    void DrawCars(std::span<const Car* const> cars) const;
-    void DrawEnvironment(const Environment& environment) const;
-
-private:
-    ResourceManager res_manager;
+    void DrawCar(const Car& car, const ResourceManager& res_manager) const;
+    void DrawCars(std::span<const Car* const> cars, const ResourceManager& res_manager) const;
+    void DrawStaticModel(const ModelComponent& model_comp, const ResourceManager& res_manager) const;
 };
 
 #endif

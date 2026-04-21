@@ -6,13 +6,12 @@
 const double near = 0.1f;
 const double far  = 10000.f;
 
-void RenderSystem::Init()
+RenderSystem::RenderSystem()
 {
     rlSetClipPlanes(near, far); // это уже дебри raylib, но я горы хочу видеть
-    res_manager.InitModels();
 }
 
-void RenderSystem::DrawCar(const Car& car) const
+void RenderSystem::DrawCar(const Car& car, const ResourceManager& res_manager) const
 {
     auto model = res_manager.GetModelByID(car.model_comp.mid);
     
@@ -27,26 +26,21 @@ void RenderSystem::DrawCar(const Car& car) const
     DrawModel(model, {0.f, 0.f, 0.f}, 1.f, WHITE);
 }
 
-void RenderSystem::DrawCars(std::span<const Car* const> cars) const
+void RenderSystem::DrawCars(std::span<const Car* const> cars, const ResourceManager& res_manager) const
 {
     for (auto car : cars) {
-        DrawCar(*car);
+        DrawCar(*car, res_manager);
     }
 }
 
-void RenderSystem::DrawEnvironment(const Environment& environment) const
+void RenderSystem::DrawStaticModel(const ModelComponent& model_comp, const ResourceManager& res_manager) const
 {
-    auto model = res_manager.GetModelByID(environment.model_comp.mid);
+    auto model = res_manager.GetModelByID(model_comp.mid);
     model.transform = MatrixTranslate(
-        environment.model_comp.transform.pos.x,
-        environment.model_comp.transform.pos.y,
-        environment.model_comp.transform.pos.z
+        model_comp.transform.pos.x,
+        model_comp.transform.pos.y,
+        model_comp.transform.pos.z
     );
 
     DrawModel(model, {0.f, 0.f, 0.f}, 1.f, WHITE);
-}
-
-void RenderSystem::Destroy()
-{
-    res_manager.UnloadModels();
 }

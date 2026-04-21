@@ -4,6 +4,7 @@ add_executable(${PROJECT_NAME}
     Core/Physics.cpp
     Core/GameWorld.cpp
     Core/VehiclePhysicsComponent.cpp
+    Core/TrackCollisionComponent.cpp
     Render/CarCamera.cpp
     Render/RenderSystem.cpp
     Render/ResourceManager.cpp

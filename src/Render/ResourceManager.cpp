@@ -32,6 +32,24 @@ Model ResourceManager::GetModelByID(ModelID id) const
     return models.at(id);
 }
 
+std::vector<CollisionMeshData> ResourceManager::GetCollisionMeshDataByID(ModelID id)
+{
+    Model m = GetModelByID(id);
+    std::vector<CollisionMeshData> collision_mesh_data;
+
+    for (int i = 0; i < m.meshCount; ++i)
+    {
+        collision_mesh_data.push_back({
+            m.meshes[i].vertexCount,
+            m.meshes[i].triangleCount,
+            m.meshes[i].vertices,
+            m.meshes[i].indices
+        });
+    }
+
+    return collision_mesh_data;
+}
+
 void ResourceManager::UnloadModels()
 {
     for (auto it = models.cbegin(); it != models.cend(); ++it)

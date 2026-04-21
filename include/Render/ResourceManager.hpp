@@ -2,6 +2,7 @@
 #define RENDER_RESOURCEMANAGER_HPP
 
 #include "Core/ModelID.hpp"
+#include "Core/CollisionMeshData.hpp"
 
 #include "raylib.h"
 #include <unordered_map>
@@ -17,7 +18,8 @@ public:
     void InitModels();
     void UnloadModels();
 
-    Model GetModelByID(ModelID id) const;
+    Model                          GetModelByID(ModelID id) const;
+    std::vector<CollisionMeshData> GetCollisionMeshDataByID(ModelID id);
 
 private:
     std::unordered_map<ModelID, Model> models;

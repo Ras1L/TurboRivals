@@ -37,3 +37,17 @@ size_t GameWorld::GetNumCars() const
 {
     return cars.size();
 }
+
+Track* GameWorld::CreateTrack(std::span<const CollisionMeshData> mesh_data, ModelID id)
+{
+    track.model_comp.mid = id;
+    track.model_comp.transform.pos = {0.f, 0.f, 0.f};
+    track.collision_comp.Init(mesh_data, physic_world);
+
+    return &track;
+}
+
+void GameWorld::DestroyTrack()
+{
+    track.collision_comp.Destroy(physic_world);
+}
