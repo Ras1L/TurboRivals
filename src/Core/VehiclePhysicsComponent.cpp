@@ -6,25 +6,25 @@
 #include "raymath.h"
 #include <memory>
 
-const float engineAccel = 5000.0f;
-const float engineDecay = 3000.0f;
+const float engineAccel = 2500.0f;
+const float engineDecay = 5000.0f;
 
-const float steerSpeed  = 1.f;
-const float steerReturn = 2.f;
+const float steerSpeed  = 2.f;
+const float steerReturn = 3.f;
 
-const float maxEngine = 7000.0f;
-const float maxSteer  = 0.5f;
+const float maxEngine = 5000.0f;
+const float maxSteer  = 0.2f;
 
 void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
 {
     // CHASSIS
-    chassisShape = std::make_unique<btBoxShape>(btVector3{1.f, 0.5f, 2.f});
+    chassisShape = std::make_unique<btBoxShape>(btVector3{2.f, 0.2f, 4.f});
 
     btTransform startTransform;
     startTransform.setIdentity();
     startTransform.setOrigin({pos.x, pos.y, pos.z});
 
-    btScalar  mass = 1100.f;
+    btScalar  mass = 1300.f;
     btVector3 inertia{0.f, 0.f, 0.f};
     chassisShape->calculateLocalInertia(mass, inertia);
 
@@ -43,8 +43,8 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
     vehicle->setCoordinateSystem(0, 1, 2);
     physic_world.addVehicle(vehicle.get());
 
-    float wheelRadius = 0.6f;
-    float suspension = 0.8f;
+    float wheelRadius = 0.4f;
+    float suspension = 0.6f;
 
     vehicle->addWheel(btVector3(1.f, 0.2f, 2.f), btVector3(0.f,-1.f,0.f), btVector3(1.f,0.f,0.f), suspension, wheelRadius, tuning, true);
     vehicle->addWheel(btVector3(-1.f, 0.2f, 2.f), btVector3(0.f,-1.f,0.f), btVector3(1.f,0.f,0.f), suspension, wheelRadius, tuning, true);
@@ -52,13 +52,13 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
     vehicle->addWheel(btVector3(-1.f, 0.2f, -2.f), btVector3(0.f,-1.f,0.f), btVector3(1.f,0.f,0.f), suspension, wheelRadius, tuning, false);
     
     for (int i = 0; i < vehicle->getNumWheels(); ++i) {
-        vehicle->getWheelInfo(i).m_suspensionStiffness = 40.f;
-        vehicle->getWheelInfo(i).m_wheelsDampingRelaxation = 2.f;
-        vehicle->getWheelInfo(i).m_wheelsDampingCompression = 4.f;
-        vehicle->getWheelInfo(i).m_frictionSlip = 6.f; // сцепление с дорогой
-        vehicle->getWheelInfo(i).m_rollInfluence = 0.05f; // поменьше чтоб машина не переворачивалась
-        vehicle->getWheelInfo(i).m_maxSuspensionTravelCm = 500;
-        vehicle->getWheelInfo(i).m_maxSuspensionForce = 6000.f;
+        vehicle->getWheelInfo(i).m_suspensionStiffness = 30.f;
+        vehicle->getWheelInfo(i).m_wheelsDampingRelaxation = 6.f;
+        vehicle->getWheelInfo(i).m_wheelsDampingCompression = 3.f;
+        vehicle->getWheelInfo(i).m_frictionSlip = 1.2f; // сцепление с дорогой
+        vehicle->getWheelInfo(i).m_rollInfluence = 0.1f; // поменьше чтоб машина не переворачивалась
+        vehicle->getWheelInfo(i).m_maxSuspensionTravelCm = 30.f;
+        vehicle->getWheelInfo(i).m_maxSuspensionForce = 5000.f;
     }
 }
 
@@ -78,8 +78,8 @@ void VehiclePhysicsComponent::Update(Input input, float dt)
     engine = Clamp(engine, -maxEngine, maxEngine);
 
     // ТОРМОЗ
-    if (input.brake) { brakeForce = 100.f; }
-    else       { brakeForce = 10.f; }
+    if (input.brake) { brakeForce = 10000.f; }
+    else       { brakeForce = 0.f; }
 
     // ПОВОРОТ
     if (input.sideway)

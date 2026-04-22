@@ -1,11 +1,9 @@
 #include "Core/Physics.hpp"
 
 #include "BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
-#include "BulletCollision/CollisionShapes/btStaticPlaneShape.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 #include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
-#include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
 #include <memory>
 
@@ -18,7 +16,7 @@ Physics::Physics()
     solver     = std::make_unique<btSequentialImpulseConstraintSolver>();
     world      = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(), solver.get(), config.get());
 
-    world->setGravity({0.f, -9.8f, 0.f});
+    world->setGravity({0.f, -12.f, 0.f});
 }
 
 void Physics::Update(float dt)
