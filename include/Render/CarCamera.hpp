@@ -2,6 +2,7 @@
 #define RENDER_CARCAMERA_HPP
 
 #include "Core/Transform3D.hpp"
+#include "Core/Input.hpp"
 
 #include "raylib.h"
 
@@ -10,7 +11,7 @@ public:
     Camera3D camera;
 
     CarCamera();
-    void UpdateCameraTransform(Transform3D transform);
+    void UpdateCameraTransform(const Input& input, Transform3D transform, float dt);
 };
 
 #endif

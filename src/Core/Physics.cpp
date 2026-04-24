@@ -21,7 +21,7 @@ Physics::Physics()
 
 void Physics::Update(float dt)
 {
-    world->stepSimulation(dt);
+    world->stepSimulation(dt, 10, 1.f/120.f);
 }
 
 void Physics::addVehicle(btRaycastVehicle* v)

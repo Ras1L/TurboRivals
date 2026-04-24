@@ -5,6 +5,9 @@ Input InputManager::GetInput() {
     input.sideway = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
     input.forward = IsKeyDown(KEY_W) - IsKeyDown(KEY_S);
     input.brake   = IsKeyDown(KEY_SPACE);
+
+    input.cameraLookBack   = IsKeyPressed(KEY_DOWN) ? !input.cameraLookBack : input.cameraLookBack;
+    input.cameraRight      = IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT);
     
     return input;
 }

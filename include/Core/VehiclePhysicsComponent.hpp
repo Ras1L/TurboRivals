@@ -16,7 +16,7 @@ public:
     void Init(Vector3 pos, Physics& physic_world);
     void Destroy(Physics& physic_world);
 
-    void        Update(Input input, float dt);
+    void        Update(const Input& input, float dt);
     Transform3D GetVehicleTransform();
 
 private:

@@ -3,7 +3,9 @@
 #include "raylib.h"
 #include "raymath.h"
 
-const Vector3 cameraOffset{ 0.f, 10.f, 25.f};
+const float cameraOffsetZ       = 12.5f;
+const float cameraRightStrength = 6.f;
+Vector3 cameraOffset{ 0.f, 5.f, cameraOffsetZ};
 
 CarCamera::CarCamera()
 {
@@ -14,8 +16,15 @@ CarCamera::CarCamera()
     camera.projection = CAMERA_PERSPECTIVE;
 }
 
-void CarCamera::UpdateCameraTransform(Transform3D transform)
+void CarCamera::UpdateCameraTransform(const Input& input, Transform3D transform, float dt)
 {
+    cameraOffset.x += input.cameraRight * dt * cameraRightStrength;
+    if (input.cameraLookBack) {
+        cameraOffset.z = -cameraOffsetZ;
+    } else {
+        cameraOffset.z = cameraOffsetZ;
+    }
+
     Matrix rotation = QuaternionToMatrix(transform.rot);
 
     Vector3 forward = Vector3Normalize(Vector3Transform({0.f, 0.f, -1.f}, rotation));
@@ -24,6 +33,10 @@ void CarCamera::UpdateCameraTransform(Transform3D transform)
     Vector3 rotatedOffset = Vector3RotateByQuaternion(cameraOffset, transform.rot);
 
     camera.position = Vector3Add(transform.pos, rotatedOffset);
-    camera.target   = Vector3Add(camera.position, forward);
-    camera.up       = up;
+    if (!input.cameraLookBack) {
+        camera.target = Vector3Add(camera.position, forward);
+    } else {
+        camera.target = Vector3Add(camera.position, Vector3Negate(forward));
+    }
+    camera.up = up;
 }

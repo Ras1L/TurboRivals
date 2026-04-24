@@ -17,8 +17,9 @@ void Application::exec()
     {
         float dt = GetFrameTime();
 
-        world.Update(input_manager.GetInput(), dt);
-        car_camera.UpdateCameraTransform(local_player->vehicle_physics_comp.GetVehicleTransform());
+        auto input = input_manager.GetInput();
+        world.Update(input, dt);
+        car_camera.UpdateCameraTransform(input, local_player->vehicle_physics_comp.GetVehicleTransform(), dt);
 
         BeginDrawing();
         ClearBackground(SKYBLUE);

@@ -5,6 +5,9 @@ struct Input {
     char forward;
     bool brake;
     char sideway;
+
+    bool cameraLookBack;
+    char cameraRight;
 };
 
 #endif

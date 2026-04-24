@@ -18,7 +18,7 @@ Car* GameWorld::CreateCar(float x, float z, ModelID model_id)
     auto car = std::make_unique<Car>();
 
     car->model_comp.mid = model_id;
-    car->model_comp.transform.pos = {x, 5.f, z};
+    car->model_comp.transform.pos = {x, 2.f, z};
     car->vehicle_physics_comp.Init(car->model_comp.transform.pos, physic_world);
 
     Car* observer = car.get();
