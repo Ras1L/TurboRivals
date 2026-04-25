@@ -4,6 +4,7 @@
 #include "Core/GameWorld.hpp"
 #include "Render/CarCamera.hpp"
 #include "Render/RenderSystem.hpp"
+#include "Sound/SoundManager.hpp"
 #include "UI/InputManager.hpp"
 #include "UI/Window.hpp"
 
@@ -16,6 +17,7 @@ private:
     InputManager    input_manager;
     CarCamera       car_camera;
     ResourceManager res_manager;
+    SoundManager    sound_manager;
     RenderSystem    render;
 
     GameWorld world;

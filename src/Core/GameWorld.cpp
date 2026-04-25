@@ -4,10 +4,15 @@
 #include "Core/Physics.hpp"
 #include <memory>
 
-void GameWorld::Update(Input input, float dt)
+void GameWorld::Update(const Input& input, float dt)
 {
+    local_car.get()->vehicle_physics_comp.Update(input, dt);
+    local_car.get()->model_comp.transform = local_car.get()->vehicle_physics_comp.GetVehicleTransform();
+
+    Input null_input;
+    null_input.returnBack = false;
     for (auto it = cars.begin(); it != cars.end(); ++it) {
-        it->get()->vehicle_physics_comp.Update(input, dt);
+        it->get()->vehicle_physics_comp.Update(null_input, dt);
         it->get()->model_comp.transform = it->get()->vehicle_physics_comp.GetVehicleTransform();
     }
     physic_world.Update(dt);
@@ -23,8 +28,11 @@ Car* GameWorld::CreateCar(float x, float z, ModelID model_id)
 
     Car* observer = car.get();
 
-    cars.push_back(std::move(car));
-
+    if (!local_car) {
+        local_car = std::move(car);
+    } else {
+        cars.push_back(std::move(car));
+    }
     return observer;
 }
 

@@ -12,7 +12,7 @@
 
 class GameWorld {
 public:
-    void Update(Input input, float dt);
+    void Update(const Input& input, float dt);
 
     Car*   CreateCar(float x, float z, ModelID model_id); // Car* - наблюдатель, GameWorld владелец Cars
     void   DestroyCar(size_t idx);
@@ -24,6 +24,7 @@ public:
 private:
     Physics physic_world;
     Track   track;
+    std::unique_ptr<Car> local_car;
     std::vector<std::unique_ptr<Car>> cars;
 };
 

@@ -9,6 +9,9 @@ cmake-build-*/
 *.log
 *.tmp
 
+ps1_gt1-style_model_-_1994_kineto_rm-x.glb
+ps1_gt1-style_model_-_1994_kineto_rm-x.glb
+
 .cache/
 .vscode/
 .VSCodeCounter/

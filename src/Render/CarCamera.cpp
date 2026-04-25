@@ -3,7 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-const float cameraOffsetZ       = 12.5f;
+const float cameraOffsetZ       = 13.f;
 const float cameraRightStrength = 6.f;
 Vector3 cameraOffset{ 0.f, 5.f, cameraOffsetZ};
 

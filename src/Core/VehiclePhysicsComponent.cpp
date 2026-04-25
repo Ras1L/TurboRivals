@@ -24,14 +24,6 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
     btTransform startTransform;
     startTransform.setIdentity();
     startTransform.setOrigin({pos.x, pos.y, pos.z}); // где спавнится машина
-    
-    // compound = std::make_unique<btCompoundShape>(); // отвечает за центр массы вместо оригина chassisShape
-
-    // btTransform localTransform;
-    // localTransform.setIdentity();
-    // localTransform.setOrigin({0.f, -0.3f, 0.f});
-
-    // compound->addChildShape(localTransform, chassisShape.get());
 
     btScalar  mass = 1500.f;
     btVector3 inertia{0.f, 0.f, 0.f};
@@ -92,20 +84,14 @@ void VehiclePhysicsComponent::Update(const Input& input, float dt)
     else       { brakeForce = 0.f; }
 
     // ПОВОРОТ
-    // if (input.sideway)
-    //     steering += input.sideway * steerSpeed * dt;
-    // else
-    // {
-    //     // возврат руля к центру
-    //     if (steering > 0)
-    //         steering = fmaxf(0.0f, steering - steerReturn * dt);
-    //     else
-    //         steering = fminf(0.0f, steering + steerReturn * dt);
-    // }
-    // steering = Clamp(steering, -maxSteer, maxSteer);
     float targetSteer = input.sideway * maxSteer;
     float rate = (targetSteer != 0.f) ? steerSpeed : steerReturn;
     steering += (targetSteer - steering) * rate * dt;
+
+    // ВОЗВРАТ
+    if (input.returnBack) {
+        chassis->setWorldTransform(btTransform::getIdentity());
+    }
 
     // Ограничения
     float speed = vehicle->getCurrentSpeedKmHour();
