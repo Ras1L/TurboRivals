@@ -5,10 +5,10 @@
 
 class InputManager {
 public:
-    Input GetInput();
+    PlayerInput GetInput();
 
 private:
-    Input input;
+    PlayerInput input;
 };
 
 #endif

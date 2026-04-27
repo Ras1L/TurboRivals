@@ -22,8 +22,8 @@ void Application::exec()
         sound_manager.Update();
 
         auto input = input_manager.GetInput();
-        world.Update(input, dt);
-        car_camera.UpdateCameraTransform(input, local_player->vehicle_physics_comp.GetVehicleTransform(), dt);
+        world.Update(input.vehicle, dt);
+        car_camera.UpdateCameraTransform(input.camera, local_player->vehicle_physics_comp.GetVehicleTransform(), dt);
 
         BeginDrawing();
         ClearBackground(SKYBLUE);

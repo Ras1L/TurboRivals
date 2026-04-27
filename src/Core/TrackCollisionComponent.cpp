@@ -31,6 +31,7 @@ void TrackCollisionComponent::Init(std::span<const CollisionMeshData> meshes, Ph
     }
 
     trackShape = std::make_unique<btBvhTriangleMeshShape>(trackMesh.get(), true);
+    trackShape->setMargin(0.01f);
     
     motion = std::make_unique<btDefaultMotionState>(btTransform::getIdentity());
     btRigidBody::btRigidBodyConstructionInfo trackCI(0.f, motion.get(), trackShape.get());

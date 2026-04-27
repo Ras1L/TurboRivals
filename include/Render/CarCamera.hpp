@@ -11,7 +11,7 @@ public:
     Camera3D camera;
 
     CarCamera();
-    void UpdateCameraTransform(const Input& input, Transform3D transform, float dt);
+    void UpdateCameraTransform(const CameraInput& input, Transform3D transform, float dt);
 };
 
 #endif

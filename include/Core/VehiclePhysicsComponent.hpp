@@ -2,6 +2,7 @@
 #define CORE_VEHICLE_PHYSICS_COMPONENT_HPP
 
 #include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 #include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
@@ -16,13 +17,14 @@ public:
     void Init(Vector3 pos, Physics& physic_world);
     void Destroy(Physics& physic_world);
 
-    void        Update(const Input& input, float dt);
+    void        Update(const VehicleInput& input, float dt);
     Transform3D GetVehicleTransform();
 
 private:
     std::unique_ptr<btCollisionShape>     chassisShape;
     std::unique_ptr<btDefaultMotionState> motion;
     std::unique_ptr<btRigidBody>          chassis;
+    std::unique_ptr<btCompoundShape>      compound;
 
     // тут прикол, чтобы raycaster создать нужно ему дать <btDiscreteDynamicsWorld*> или просто world
     // за этот глобальный world отвечает class Physics, но владеть по логике raycaster-ом должны отдельные Car через CarPhysicsComponent

@@ -2,6 +2,7 @@
 #define SOUND_SOUND_ID_HPP
 
 enum class SoundID {
+    MUS_NONE,
     MUS_DANGEROUS_GROUND,
 
     COUNT

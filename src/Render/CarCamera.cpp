@@ -16,7 +16,7 @@ CarCamera::CarCamera()
     camera.projection = CAMERA_PERSPECTIVE;
 }
 
-void CarCamera::UpdateCameraTransform(const Input& input, Transform3D transform, float dt)
+void CarCamera::UpdateCameraTransform(const CameraInput& input, Transform3D transform, float dt)
 {
     cameraOffset.x += input.cameraRight * dt * cameraRightStrength;
     if (input.cameraLookBack) {

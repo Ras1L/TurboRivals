@@ -9,12 +9,13 @@ void SoundManager::Init(SoundID id)
         {SoundID::MUS_DANGEROUS_GROUND, LoadMusicStream("assets/musics/dangerous_ground.mp3")}
     };
     currentID = id;
+    current = &musics[id];
     Play(currentID);
 }
 
 void SoundManager::Update()
 {
-    UpdateMusicStream(musics[currentID]);
+    UpdateMusicStream(*current);
 }
 
 void SoundManager::Close()
@@ -25,11 +26,14 @@ void SoundManager::Close()
 
 void SoundManager::Play(SoundID id)
 {
-    currentID = id;
-    PlayMusicStream(musics[currentID]);
+    if (currentID != id) {
+        currentID = id;
+        current = &musics[id];
+    }
+    PlayMusicStream(*current);
 }
 
 void SoundManager::Unload()
 {
-    UnloadMusicStream(musics[currentID]);
+    UnloadMusicStream(*current);
 }

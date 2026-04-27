@@ -4,12 +4,12 @@
 #include "Core/Physics.hpp"
 #include <memory>
 
-void GameWorld::Update(const Input& input, float dt)
+void GameWorld::Update(const VehicleInput& input, float dt)
 {
     local_car.get()->vehicle_physics_comp.Update(input, dt);
     local_car.get()->model_comp.transform = local_car.get()->vehicle_physics_comp.GetVehicleTransform();
 
-    Input null_input;
+    VehicleInput null_input;
     null_input.returnBack = false;
     for (auto it = cars.begin(); it != cars.end(); ++it) {
         it->get()->vehicle_physics_comp.Update(null_input, dt);

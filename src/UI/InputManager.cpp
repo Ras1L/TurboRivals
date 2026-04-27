@@ -1,15 +1,15 @@
 #include "UI/InputManager.hpp"
 #include "raylib.h"
 
-Input InputManager::GetInput() {
-    input.sideway = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
-    input.forward = IsKeyDown(KEY_W) - IsKeyDown(KEY_S);
-    input.brake   = IsKeyDown(KEY_SPACE);
+PlayerInput InputManager::GetInput() {
+    input.vehicle.sideway = IsKeyDown(KEY_D) - IsKeyDown(KEY_A);
+    input.vehicle.forward = IsKeyDown(KEY_W) - IsKeyDown(KEY_S);
+    input.vehicle.brake   = IsKeyDown(KEY_SPACE);
+    
+    input.vehicle.returnBack = IsKeyDown(KEY_R);
 
-    input.returnBack = IsKeyDown(KEY_R);
-
-    input.cameraLookBack = IsKeyPressed(KEY_DOWN) ? !input.cameraLookBack : input.cameraLookBack;
-    input.cameraRight    = IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT);
+    input.camera.cameraLookBack = IsKeyPressed(KEY_DOWN) ? !input.camera.cameraLookBack : input.camera.cameraLookBack;
+    input.camera.cameraRight    = IsKeyDown(KEY_RIGHT) - IsKeyDown(KEY_LEFT);
     
     return input;
 }

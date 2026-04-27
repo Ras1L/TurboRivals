@@ -12,7 +12,7 @@
 
 class GameWorld {
 public:
-    void Update(const Input& input, float dt);
+    void Update(const VehicleInput& input, float dt);
 
     Car*   CreateCar(float x, float z, ModelID model_id); // Car* - наблюдатель, GameWorld владелец Cars
     void   DestroyCar(size_t idx);

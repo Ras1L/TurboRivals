@@ -16,7 +16,8 @@ public:
 
 private:
     std::unordered_map<SoundID, Music> musics;
-    SoundID currentID;
+    Music*  current   = nullptr;
+    SoundID currentID = SoundID::MUS_NONE;
 };
 
 #endif

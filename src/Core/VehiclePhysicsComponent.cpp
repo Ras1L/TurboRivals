@@ -1,5 +1,6 @@
 #include "Core/VehiclePhysicsComponent.hpp"
 #include "BulletCollision/CollisionShapes/btBoxShape.h"
+#include "BulletCollision/CollisionShapes/btCompoundShape.h"
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 
 #include "LinearMath/btTransform.h"
@@ -13,8 +14,8 @@ const float engineDecay = 5000.0f;
 const float steerSpeed  = 3.f;
 const float steerReturn = 5.f;
 
-const float maxEngine = 4000.0f;
-const float maxSteer  = 0.1f;
+const float maxEngine = 7000.0f;
+const float maxSteer  = 0.3f;
 
 void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
 {
@@ -29,11 +30,20 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
     btVector3 inertia{0.f, 0.f, 0.f};
     chassisShape->calculateLocalInertia(mass, inertia);
 
+    compound = std::make_unique<btCompoundShape>();
+
+    btTransform localTransform;
+    localTransform.setIdentity();
+    localTransform.setOrigin({0.f, 1.5f, 0.f});
+
+    compound->addChildShape(localTransform, chassisShape.get());
+
     motion = std::make_unique<btDefaultMotionState>(startTransform);
     btRigidBody::btRigidBodyConstructionInfo chassisCI(mass, motion.get(), chassisShape.get(), inertia);
     chassis = std::make_unique<btRigidBody>(chassisCI);
     chassis->setActivationState(DISABLE_DEACTIVATION); // Если это не выкл. короче машина вырубается сама по себе и не едет
     chassis->setDamping(0.05f, 0.2f);
+    chassis->setFriction(0.2f);
 
     physic_world.addRigidBody(chassis.get());
 
@@ -46,7 +56,7 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
     physic_world.addVehicle(vehicle.get());
 
     float wheelRadius = 0.2f;
-    float suspension = 0.9f;
+    float suspension = 0.8f;
 
     vehicle->addWheel(btVector3(0.9f, 0.2f, 1.5f), btVector3(0.f,-1.f,0.f), btVector3(1.f,0.f,0.f), suspension, wheelRadius, tuning, true);
     vehicle->addWheel(btVector3(-0.9f, 0.2f, 1.5f), btVector3(0.f,-1.f,0.f), btVector3(1.f,0.f,0.f), suspension, wheelRadius, tuning, true);
@@ -57,18 +67,22 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
         vehicle->getWheelInfo(i).m_suspensionStiffness = 30.f;
         vehicle->getWheelInfo(i).m_wheelsDampingRelaxation = 6.f;
         vehicle->getWheelInfo(i).m_wheelsDampingCompression = 3.f;
-        vehicle->getWheelInfo(i).m_frictionSlip = 4.5f; // сцепление с дорогой
+        vehicle->getWheelInfo(i).m_frictionSlip = 6.f; // сцепление с дорогой
         vehicle->getWheelInfo(i).m_rollInfluence = 0.1f; // поменьше чтоб машина не переворачивалась
-        vehicle->getWheelInfo(i).m_maxSuspensionTravelCm = 90.f;
-        vehicle->getWheelInfo(i).m_maxSuspensionForce = 8000.f;
+        vehicle->getWheelInfo(i).m_maxSuspensionTravelCm = 80.f;
+        vehicle->getWheelInfo(i).m_maxSuspensionForce = 40000.f;
     }
 }
 
-void VehiclePhysicsComponent::Update(const Input& input, float dt)
+void VehiclePhysicsComponent::Update(const VehicleInput& input, float dt)
 {
+    float speed = fabsf(vehicle->getCurrentSpeedKmHour());
+    speed = Clamp(speed / 200.f, 0.f, 1.f);
+
     // ДВИЖЕНИЕ
+    float rateEngine = 1.f - 0.75f * speed;
     if (input.forward)
-        engine += input.forward * engineAccel * dt;
+        engine += input.forward * engineAccel * rateEngine * dt;
     else
     {
         // плавное затухание
@@ -80,11 +94,12 @@ void VehiclePhysicsComponent::Update(const Input& input, float dt)
     engine = Clamp(engine, -maxEngine, maxEngine);
 
     // ТОРМОЗ
-    if (input.brake) { brakeForce = 1000.f; }
+    if (input.brake) { brakeForce = 500.f; }
     else       { brakeForce = 0.f; }
 
     // ПОВОРОТ
-    float targetSteer = input.sideway * maxSteer;
+    float rateSteer = 1.f - 0.65f * speed;
+    float targetSteer = input.sideway * maxSteer * rateSteer;
     float rate = (targetSteer != 0.f) ? steerSpeed : steerReturn;
     steering += (targetSteer - steering) * rate * dt;
 
@@ -93,11 +108,8 @@ void VehiclePhysicsComponent::Update(const Input& input, float dt)
         chassis->setWorldTransform(btTransform::getIdentity());
     }
 
-    // Ограничения
-    float speed = vehicle->getCurrentSpeedKmHour();
-
     // Ограничение максимальной скорости
-    if (speed > 240.f) { engine = 0.f; }
+    if (speed > 200.f) { engine = 0.f; }
 
     // Стабилизация заноса
     btVector3 vel = chassis->getLinearVelocity();
