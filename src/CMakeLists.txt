@@ -11,6 +11,8 @@ add_executable(${PROJECT_NAME}
     UI/Window.cpp
     UI/InputManager.cpp
     Sound/SoundManager.cpp
+    Network/NetworkManager.cpp
+    Network/Client.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
