@@ -9,12 +9,14 @@ public:
     void Init();
     void Destroy();
 
-    void ConnectToServer(ENetAddress* const address);
+    void ConnectToServer(ENetAddress* address);
     void DisconnectFromServer();
 
     void OnConnect(ENetPeer* peer) override;
     void OnDisconnect(ENetPeer* peer) override;
     void OnReceive(ENetPeer* peer, ENetPacket* packet) override;
+
+    void SendToServer(float dt);
 
 private:
     Host client = nullptr;

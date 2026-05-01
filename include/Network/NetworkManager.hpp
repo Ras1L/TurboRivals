@@ -3,9 +3,10 @@
 
 #include <enet/enet.h>
 #include <memory>
-#include <optional>
 
 #include "Network/INetworkListener.hpp"
+
+const float tickRate = 1.f/60.f;
 
 struct ENetHostDeleter {
     void operator()(ENetHost* server) {
@@ -21,7 +22,7 @@ public:
     void Init();
     void Deinit();
 
-    static Host CreateHost(ENetAddress* address, std::optional<std::string> ip = std::nullopt, unsigned short port = 7903);
+    static Host CreateServer(ENetAddress* address, std::string ip = "127.0.0.1", unsigned short port = 7903);
     static Host CreateClient();
     static void DestroyHost(ENetHost* host);
 
@@ -30,8 +31,8 @@ public:
 
     void PollEvents(ENetHost* host, INetworkListener& listener);
 
-    void SendPacketToPeer(ENetPeer* peer, float accum, float dt);
-    void SendFromHostBroadcast(ENetHost* server, float accum, float dt);
+    static void SendPacketToPeer(ENetPeer* peer);
+    static void SendFromHostBroadcast(ENetHost* server);
 };
 
 #endif

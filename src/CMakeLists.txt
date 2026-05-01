@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
     Sound/SoundManager.cpp
     Network/NetworkManager.cpp
     Network/Client.cpp
+    Network/Server.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

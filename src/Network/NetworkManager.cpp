@@ -5,9 +5,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-#include <optional>
-
-const float tickRate = 1.f/60.f;
 
 const bool network_debug = true;
 
@@ -33,27 +30,32 @@ void NetworkManager::Deinit()
     }
 }
 
-Host NetworkManager::CreateHost(ENetAddress* address, std::optional<std::string> ip, unsigned short port)
+Host NetworkManager::CreateServer(ENetAddress* address, std::string ip, unsigned short port)
 {
-    if (ip.has_value()) {
-        if (enet_address_set_host(address, ip.value().c_str()) < 0) {
-            fprintf(stderr, "ERROR: ENET: An error occurred while setting ENet host address.\n");
-            address -> host = ENET_HOST_ANY;
-        }
-    } else {
-        address -> host = ENET_HOST_ANY;
+    if (enet_address_set_host(address, ip.c_str()) < 0) {
+        fprintf(stderr, "ERROR: ENET: An error occurred while setting ENet host address.\n");
+        return nullptr;
     }
+    address -> host = ENET_HOST_ANY;
     address -> port = port;
 
     Host server(enet_host_create(address, clients_for_connection, channels_used, 0, 0));
     if (!server) {
         fprintf(stderr, "ERROR: ENET: An error occurred while creating ENet host.\n");
+        return nullptr;
     }
+    printf("INFO: ENET: A server created successfully.\n");
+
     return server;
 }
 
 void NetworkManager::DestroyHost(ENetHost* host)
 {
+    enet_address_get_host_ip(&host -> address, beauty_ip, IP_SIZE);
+    printf("INFO: ENET: Destroy host %s:%u",
+        beauty_ip,
+        host -> address.port
+    );
     enet_host_destroy(host);
 }
 
@@ -75,7 +77,7 @@ Peer NetworkManager::ConnectToPeer(ENetHost* host, ENetAddress* address)
     enet_address_get_host_ip(address, beauty_ip, IP_SIZE);
     if (enet_host_service(host, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
     {
-        printf("INFO: ENET: Connection to %s:%u succeed",
+        printf("INFO: ENET: Connection to %s:%u succeed.\n",
             beauty_ip,
             host -> address.port
         );
@@ -86,7 +88,7 @@ Peer NetworkManager::ConnectToPeer(ENetHost* host, ENetAddress* address)
         // если 5 секунд в ожидании подключения прошли или соединение оборвалось
         // если особых событий или ошибок нет, то лучше перезапустить попытку соединиться
         enet_peer_reset(peer.get());
-        printf("WARNING: ENET: Connection to %s:%u failed.",
+        printf("WARNING: ENET: Connection to %s:%u failed.\n",
             beauty_ip,
             host -> address.port
         );
@@ -128,7 +130,7 @@ void NetworkManager::PollEvents(ENetHost* host, INetworkListener& listener)
         {
             case ENET_EVENT_TYPE_CONNECT:
                 enet_address_get_host_ip(&event.peer -> address, beauty_ip, IP_SIZE);
-                printf("INFO: ENET: A new client connected from %s:%u",
+                printf("INFO: ENET: A new client connected from %s:%u.\n",
                     beauty_ip,
                     event.peer -> address.port
                 );
@@ -150,12 +152,12 @@ void NetworkManager::PollEvents(ENetHost* host, INetworkListener& listener)
                 // где то здесь будем читать данные с пакета
                 listener.OnReceive(event.peer, event.packet);
                 // пакет удаляем, он нам больше не нужен, а то займет память, тем более 60 пакетов таких в секунду
-                enet_packet_destroy(event.packet); 
+                enet_packet_destroy(event.packet);
                 break;
 
             case ENET_EVENT_TYPE_DISCONNECT:
                 enet_address_get_host_ip(&event.peer -> address, beauty_ip, IP_SIZE);
-                printf("INFO: ENET: A client from %s:%u disconnected",
+                printf("INFO: ENET: A client from %s:%u disconnected.\n",
                     beauty_ip,
                     event.peer -> address.port
                 );
@@ -168,22 +170,14 @@ void NetworkManager::PollEvents(ENetHost* host, INetworkListener& listener)
     }
 }
 
-void NetworkManager::SendPacketToPeer(ENetPeer* peer, float accum, float dt)
+void NetworkManager::SendPacketToPeer(ENetPeer* peer)
 {
-    accum += dt;
-    if (accum >= tickRate) { // отправляем 60 раз в секунду
-        ENetPacket* packet = enet_packet_create("packet", strlen("packet") + 1, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // пакет так создаем, enet сам его почистит
-        enet_peer_send(peer, 0, packet); // отправляем пакет клиенту по каналу channelID = 0
-    }
-    accum -= tickRate;
+    ENetPacket* packet = enet_packet_create("packet", strlen("packet") + 1, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // пакет так создаем, enet сам его почистит
+    enet_peer_send(peer, 0, packet); // отправляем пакет клиенту по каналу channelID = 0
 }
 
-void NetworkManager::SendFromHostBroadcast(ENetHost* server, float accum, float dt)
+void NetworkManager::SendFromHostBroadcast(ENetHost* server)
 {
-    accum += dt;
-    if (accum >= tickRate) {
-        ENetPacket* packet = enet_packet_create("packet", strlen("packet") + 1, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // "packet" это заглушка
-        enet_host_broadcast(server, 0, packet);
-    }
-    accum -= tickRate;
+    ENetPacket* packet = enet_packet_create("packet", strlen("packet") + 1, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // "packet" это заглушка
+    enet_host_broadcast(server, 0, packet);
 }

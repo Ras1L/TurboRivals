@@ -5,8 +5,8 @@
 
 enum class PacketType : uint8_t
 {
-    Input,
-    Transform
+    ClientInput,
+    CurrentTransforms
 };
 
 #endif
