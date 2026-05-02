@@ -33,10 +33,9 @@ void NetworkManager::Deinit()
 Host NetworkManager::CreateServer(ENetAddress* address, std::string ip, unsigned short port)
 {
     if (enet_address_set_host(address, ip.c_str()) < 0) {
-        fprintf(stderr, "ERROR: ENET: An error occurred while setting ENet host address.\n");
-        return nullptr;
+        fprintf(stderr, "WARNING: ENET: A failure occurred while setting ENet host address with %s.\n", ip.c_str());
+        address -> host = ENET_HOST_ANY;
     }
-    address -> host = ENET_HOST_ANY;
     address -> port = port;
 
     Host server(enet_host_create(address, clients_for_connection, channels_used, 0, 0));

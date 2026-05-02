@@ -4,21 +4,25 @@
 #include "Network/NetworkManager.hpp"
 #include "enet/enet.h"
 
-class Client final : public INetworkListener {
+class Client final : INetworkListener {
 public:
     void Init();
     void Destroy();
 
-    void ConnectToServer(ENetAddress* address);
+    void ConnectToServer(std::string ip);
     void DisconnectFromServer();
 
+    void SendToServer(float dt);
+
+    void Update();
+
+private:
     void OnConnect(ENetPeer* peer) override;
     void OnDisconnect(ENetPeer* peer) override;
     void OnReceive(ENetPeer* peer, ENetPacket* packet) override;
 
-    void SendToServer(float dt);
-
 private:
+    Addr server_addr;
     Host client = nullptr;
     Peer server = nullptr; // сервер к которому подключаемся, для нас он пир
 

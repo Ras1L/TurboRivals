@@ -3,7 +3,6 @@
 #include "Network/PacketType.hpp"
 #include "enet/enet.h"
 
-
 void Client::Init()
 {
     client = NetworkManager::CreateClient();
@@ -14,9 +13,10 @@ void Client::Destroy()
     NetworkManager::DestroyHost(client.get());
 }
 
-void Client::ConnectToServer(ENetAddress* address)
+void Client::ConnectToServer(std::string ip)
 {
-    server = NetworkManager::ConnectToPeer(client.get(), address);
+    enet_address_set_host(&server_addr, ip.c_str()); // не буду проверять успешно или нет
+    server = NetworkManager::ConnectToPeer(client.get(), &server_addr);
 }
 
 void Client::DisconnectFromServer()
@@ -63,4 +63,9 @@ void Client::SendToServer(float dt)
         NetworkManager::SendPacketToPeer(server.get());
     }
     accum -= tickRate;
+}
+
+void Client::Update()
+{
+    NetworkManager::PollEvents(client.get(), *this);
 }

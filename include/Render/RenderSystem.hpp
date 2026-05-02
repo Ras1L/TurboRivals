@@ -2,7 +2,6 @@
 #define RENDER_RENDERSYSTEM_HPP
 
 #include "Core/Car.hpp"
-#include "Core/Environment.hpp"
 #include "Render/ResourceManager.hpp"
 
 #include <span>

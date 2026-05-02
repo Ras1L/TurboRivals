@@ -1,10 +1,8 @@
 #include "Network/Server.hpp"
 #include "Network/NetworkManager.hpp"
 #include "Network/PacketType.hpp"
-#include "enet/enet.h"
+
 #include <algorithm>
-#include <memory>
-#include <pstl/glue_algorithm_defs.h>
 
 void Server::Init()
 {
@@ -16,29 +14,25 @@ void Server::Destroy()
     NetworkManager::DestroyHost(server.get());
 }
 
-void Server::DisconnectClient(ENetPeer* peer)
+void Server::DisconnectClient(uint8_t id)
 {
-    auto it = std::find_if(clients.cbegin(), clients.cend(), 
-    [peer](auto& p) {
-        return p.get() == peer;
-    });
+    auto it = clients.find(id);
     if (it != clients.cend()) {
-        NetworkManager::DisconnectPeer(server.get(), it->get());
+        NetworkManager::DisconnectPeer(server.get(), it -> second.get());
     }
 }
 
 void Server::OnConnect(ENetPeer* peer)
 {
     // peer -> data тоже надо, но пока хз что там должно быть
-    Peer client(peer);
-    clients.push_back(std::move(client));
+    while (!clients.insert({client_ids++, Peer(peer)}).second) {}
 }
 
 void Server::OnDisconnect(ENetPeer* peer)
 {
     auto it = std::find_if(clients.cbegin(), clients.cend(), 
     [peer](auto& p) {
-        return p.get() == peer;
+        return p.second.get() == peer;
     });
     if (it != clients.cend()) {
         clients.erase(it);
@@ -60,11 +54,24 @@ void Server::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот паке
     }
 }
 
-void Server::SendToClient(ENetPeer* peer, float dt) // это избранные данные клиентам передавать
+void Server::SendToClient(uint8_t id, float dt) // это избранные данные клиентам передавать
 {
+    auto peer = clients.find(id) -> second.get();
     accum += dt;
     if (accum >= tickRate) {
         NetworkManager::SendPacketToPeer(peer);
+    }
+    accum -= tickRate;
+}
+
+void Server::SendToClients(float dt)
+{
+    accum += dt;
+    if (accum >= tickRate) {
+        std::for_each(clients.cbegin(), clients.cend(), 
+        [](auto& p){
+            NetworkManager::SendPacketToPeer(p.second.get());
+        });
     }
     accum -= tickRate;
 }
@@ -76,4 +83,9 @@ void Server::SendBroadcast(float dt) // это для всех передава�
         NetworkManager::SendFromHostBroadcast(server.get());
     }
     accum -= tickRate;
+}
+
+void Server::Update()
+{
+    NetworkManager::PollEvents(server.get(), *this);
 }

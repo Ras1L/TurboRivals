@@ -21,9 +21,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${RAYLIB_DIR}/include
     ${ENET_DIR}/include
     ${BULLET_DIR}/src
-)
-target_link_directories(${PROJECT_NAME} PRIVATE
-    ${RAYLIB_DIR}/lib
+    ${IMGUI_DIR}
+    ${RLIMGUI_DIR}
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
     raylib
@@ -31,6 +30,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     BulletDynamics
     BulletCollision
     LinearMath
+    rlImGui
 )
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall
