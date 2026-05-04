@@ -1,31 +1,31 @@
 #include "Network/Server.hpp"
-#include "Network/NetworkManager.hpp"
+#include "Network/ENet.hpp"
 #include "Network/PacketType.hpp"
 
 #include <algorithm>
 
 void Server::Init()
 {
-    server = NetworkManager::CreateServer(&address);
+    server = ENet::CreateServer(&address);
 }
 
 void Server::Destroy()
 {
-    NetworkManager::DestroyHost(server.get());
+    ENet::DestroyHost(server.get());
 }
 
 void Server::DisconnectClient(uint8_t id)
 {
     auto it = clients.find(id);
     if (it != clients.cend()) {
-        NetworkManager::DisconnectPeer(server.get(), it -> second.get());
+        ENet::DisconnectPeer(server.get(), it -> second.get());
     }
 }
 
 void Server::OnConnect(ENetPeer* peer)
 {
     // peer -> data тоже надо, но пока хз что там должно быть
-    while (!clients.insert({client_ids++, Peer(peer)}).second) {}
+    while (!clients.insert({client_ids++, ENet::Peer(peer)}).second) {}
 }
 
 void Server::OnDisconnect(ENetPeer* peer)
@@ -59,7 +59,7 @@ void Server::SendToClient(uint8_t id, float dt) // это избранные д�
     auto peer = clients.find(id) -> second.get();
     accum += dt;
     if (accum >= tickRate) {
-        NetworkManager::SendPacketToPeer(peer);
+        ENet::SendPacketToPeer(peer);
     }
     accum -= tickRate;
 }
@@ -70,7 +70,7 @@ void Server::SendToClients(float dt)
     if (accum >= tickRate) {
         std::for_each(clients.cbegin(), clients.cend(), 
         [](auto& p){
-            NetworkManager::SendPacketToPeer(p.second.get());
+            ENet::SendPacketToPeer(p.second.get());
         });
     }
     accum -= tickRate;
@@ -80,12 +80,12 @@ void Server::SendBroadcast(float dt) // это для всех передава�
 {
     accum += dt;
     if (accum >= tickRate) {
-        NetworkManager::SendFromHostBroadcast(server.get());
+        ENet::SendFromHostBroadcast(server.get());
     }
     accum -= tickRate;
 }
 
 void Server::Update()
 {
-    NetworkManager::PollEvents(server.get(), *this);
+    ENet::PollEvents(server.get(), *this);
 }

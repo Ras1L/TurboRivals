@@ -2,12 +2,14 @@
 #include "Core/Environment.hpp"
 #include "Core/GameWorld.hpp"
 #include "Core/ModelID.hpp"
+#include "Network/NetworkStatus.hpp"
 #include "raylib.h"
 
 void Application::exec()
 {
     window.Create();
     res_manager.InitModels();
+    network.Init(NetworkStatus::OFFLINE);
     sound_manager.Init(SoundID::MUS_DANGEROUS_GROUND);
     
     Car*        local_player = world.CreateCar(0.f, 0.f, ModelID::CAR__HORAI_BX300_1996);
@@ -19,6 +21,7 @@ void Application::exec()
     {
         float dt = GetFrameTime();
 
+        network.Update(dt);
         sound_manager.Update();
 
         auto input = input_manager.GetInput();
@@ -39,6 +42,7 @@ void Application::exec()
     }
 
     sound_manager.Close();
+    network.Deinit();
     res_manager.UnloadModels();
     window.Close();
 }

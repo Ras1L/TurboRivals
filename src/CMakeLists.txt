@@ -11,6 +11,7 @@ add_executable(${PROJECT_NAME}
     UI/Window.cpp
     UI/InputManager.cpp
     Sound/SoundManager.cpp
+    Network/ENet.cpp
     Network/NetworkManager.cpp
     Network/Client.cpp
     Network/Server.cpp
@@ -30,7 +31,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     BulletDynamics
     BulletCollision
     LinearMath
-    rlImGui
 )
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall

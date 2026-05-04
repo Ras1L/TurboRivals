@@ -1,27 +1,27 @@
 #include "Network/Client.hpp"
-#include "Network/NetworkManager.hpp"
+#include "Network/ENet.hpp"
 #include "Network/PacketType.hpp"
 #include "enet/enet.h"
 
 void Client::Init()
 {
-    client = NetworkManager::CreateClient();
+    client = ENet::CreateClient();
 }
 
 void Client::Destroy()
 {
-    NetworkManager::DestroyHost(client.get());
+    ENet::DestroyHost(client.get());
 }
 
 void Client::ConnectToServer(std::string ip)
 {
     enet_address_set_host(&server_addr, ip.c_str()); // не буду проверять успешно или нет
-    server = NetworkManager::ConnectToPeer(client.get(), &server_addr);
+    server = ENet::ConnectToPeer(client.get(), &server_addr);
 }
 
 void Client::DisconnectFromServer()
 {
-    NetworkManager::DisconnectPeer(client.get(), server.get());
+    ENet::DisconnectPeer(client.get(), server.get());
 }
 
 void Client::OnConnect(ENetPeer* peer) // к клиенту не подключаются, он подключается к серверу
@@ -60,12 +60,12 @@ void Client::SendToServer(float dt)
     accum += dt;
     if (accum >= tickRate)
     {
-        NetworkManager::SendPacketToPeer(server.get());
+        ENet::SendPacketToPeer(server.get());
     }
     accum -= tickRate;
 }
 
 void Client::Update()
 {
-    NetworkManager::PollEvents(client.get(), *this);
+    ENet::PollEvents(client.get(), *this);
 }

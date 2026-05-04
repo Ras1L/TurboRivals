@@ -2,6 +2,7 @@
 #define APP_APPLICATION_HPP
 
 #include "Core/GameWorld.hpp"
+#include "Network/NetworkManager.hpp"
 #include "Render/CarCamera.hpp"
 #include "Render/RenderSystem.hpp"
 #include "Sound/SoundManager.hpp"
@@ -17,6 +18,7 @@ private:
     InputManager    input_manager;
     CarCamera       car_camera;
     ResourceManager res_manager;
+    NetworkManager  network;
     SoundManager    sound_manager;
     RenderSystem    render;
 
