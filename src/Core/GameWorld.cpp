@@ -1,10 +1,23 @@
 #include "Core/GameWorld.hpp"
+#include "Core/Environment.hpp"
 #include "Core/Input.hpp"
 #include "Core/ModelID.hpp"
 #include "Core/Physics.hpp"
 #include <memory>
 
-void GameWorld::Update(const VehicleInput& input, float dt)
+const size_t MAX_PLAYERS_CNT = 8;
+
+void GameWorld::Init(const SessionState& session, const GameWorldInitData& init_data)
+{
+    CreateTrack(init_data.track_col_mesh, session.track);
+    CreateEnvironment(session.env);
+    cars.reserve(MAX_PLAYERS_CNT);
+    for (auto& player : session.players) {
+        CreateCar(player.spawn.x, player.spawn.z, player.car, player.is_local); // id из SessionPlayer не используется
+    }
+}
+
+void GameWorld::Update(const VehicleInput& input, float dt) // TODO: здесь world из network должен получить пакеты об инпуте остальных игроков
 {
     local_car.get()->vehicle_physics_comp.Update(input, dt);
     local_car.get()->model_comp.transform = local_car.get()->vehicle_physics_comp.GetVehicleTransform();
@@ -18,7 +31,7 @@ void GameWorld::Update(const VehicleInput& input, float dt)
     physic_world.Update(dt);
 }
 
-Car* GameWorld::CreateCar(float x, float z, ModelID model_id)
+void GameWorld::CreateCar(float x, float z, ModelID model_id, bool is_local)
 {
     auto car = std::make_unique<Car>();
 
@@ -26,14 +39,11 @@ Car* GameWorld::CreateCar(float x, float z, ModelID model_id)
     car->model_comp.transform.pos = {x, 2.f, z};
     car->vehicle_physics_comp.Init(car->model_comp.transform.pos, physic_world);
 
-    Car* observer = car.get();
-
-    if (!local_car) {
+    if (is_local) {
         local_car = std::move(car);
     } else {
         cars.push_back(std::move(car));
     }
-    return observer;
 }
 
 void GameWorld::DestroyCar(size_t idx)
@@ -41,21 +51,18 @@ void GameWorld::DestroyCar(size_t idx)
     cars[idx]->vehicle_physics_comp.Destroy(physic_world);
 }
 
-size_t GameWorld::GetNumCars() const
+void GameWorld::CreateTrack(std::span<const CollisionMeshData> mesh_data, ModelID mid)
 {
-    return cars.size();
-}
-
-Track* GameWorld::CreateTrack(std::span<const CollisionMeshData> mesh_data, ModelID id)
-{
-    track.model_comp.mid = id;
+    track.model_comp.mid = mid;
     track.model_comp.transform.pos = {0.f, 0.f, 0.f};
     track.collision_comp.Init(mesh_data, physic_world);
-
-    return &track;
 }
 
 void GameWorld::DestroyTrack()
 {
     track.collision_comp.Destroy(physic_world);
+}
+
+void GameWorld::CreateEnvironment(ModelID mid) {
+    env = {{mid}};
 }

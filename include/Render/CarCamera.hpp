@@ -8,10 +8,10 @@
 
 class CarCamera {
 public:
-    Camera3D camera;
+    Camera3D m_camera;
 
     CarCamera();
-    void UpdateCameraTransform(const CameraInput& input, Transform3D transform, float dt);
+    void Update(const CameraInput& input, Transform3D transform, float dt);
 };
 
 #endif

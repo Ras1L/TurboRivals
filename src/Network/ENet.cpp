@@ -184,4 +184,11 @@ namespace ENet
         ENetPacket* packet = enet_packet_create("packet", strlen("packet") + 1, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // "packet" это заглушка
         enet_host_broadcast(server, 0, packet);
     }
+
+    void SetAddressIP(ENetAddress *address, std::string ip)
+    {
+        if (enet_address_set_host(address, ip.c_str()) < 0) {
+            fprintf(stderr, "WARNING: ENET: A failure occurred while setting ENet host address with %s.\n", ip.c_str());
+        }
+    }
 }

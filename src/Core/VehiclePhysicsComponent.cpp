@@ -130,7 +130,7 @@ void VehiclePhysicsComponent::Update(const VehicleInput& input, float dt)
     vehicle->setSteeringValue(steering, 1);
 }
 
-Transform3D VehiclePhysicsComponent::GetVehicleTransform()
+Transform3D VehiclePhysicsComponent::GetVehicleTransform() const
 {
     auto t = vehicle->getChassisWorldTransform();
     Transform3D tr;

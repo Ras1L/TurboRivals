@@ -37,6 +37,8 @@ namespace ENet
 
     void SendPacketToPeer(ENetPeer* peer);
     void SendFromHostBroadcast(ENetHost* server);
+
+    void SetAddressIP(ENetAddress* address, std::string ip);
 }
 
 

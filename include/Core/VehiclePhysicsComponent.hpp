@@ -18,7 +18,7 @@ public:
     void Destroy(Physics& physic_world);
 
     void        Update(const VehicleInput& input, float dt);
-    Transform3D GetVehicleTransform();
+    Transform3D GetVehicleTransform() const;
 
 private:
     std::unique_ptr<btCollisionShape>     chassisShape;

@@ -1,6 +1,7 @@
 #ifndef NETWORK_NETWORK_MANAGER_HPP
 #define NETWORK_NETWORK_MANAGER_HPP
 
+#include "Core/Session.hpp"
 #include "Network/ENet.hpp"
 #include "Network/IClient.hpp"
 #include "Network/IServer.hpp"
@@ -12,6 +13,8 @@ public:
     void Deinit();
 
     void Update(float dt);
+
+    SessionState GetSessionState();
 
 private:
     ENet::Node node = nullptr;

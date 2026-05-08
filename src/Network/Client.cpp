@@ -15,7 +15,8 @@ void Client::Destroy()
 
 void Client::ConnectToServer(std::string ip)
 {
-    enet_address_set_host(&server_addr, ip.c_str()); // не буду проверять успешно или нет
+    ENet::SetAddressIP(&server_addr, ip);
+    if (server) { DisconnectFromServer(); }
     server = ENet::ConnectToPeer(client.get(), &server_addr);
 }
 

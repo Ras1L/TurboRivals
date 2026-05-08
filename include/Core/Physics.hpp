@@ -10,7 +10,6 @@
 #include "BulletDynamics/Dynamics/btRigidBody.h"
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 #include "BulletDynamics/Vehicle/btVehicleRaycaster.h"
-#include "LinearMath/btDefaultMotionState.h"
 #include <memory>
 
 // Отвечает за библиотеку Bullet
