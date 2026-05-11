@@ -109,9 +109,7 @@ build\src\TurboRivals.exe
 
 # 📸 Screenshots Gameplay
 
-```md
 ![Gameplay](doc/screenshots/gameplay.png)
-```
 
 # 📄 License
 
