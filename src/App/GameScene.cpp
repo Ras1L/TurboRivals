@@ -12,7 +12,7 @@ void GameScene::Load()
 
     resources.InitModels();
     GameWorldInitData init_data;
-    init_data.track_col_mesh = resources.GetCollisionMeshDataByID(ModelID::TRK__CIRCUIT8_BRIDGE);
+    init_data.track_col_mesh = resources.GetCollisionMeshDataByID(session.track);
 
     world.Init(session, init_data); // Учитывать то что для клиента данные приходят из сети (session), а сервер в меню что-то выбрал и использует (info)
     cars  = world.GetCars();
