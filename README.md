@@ -1,6 +1,6 @@
 # 🎮 Turbo Rivals
 
-*Racing game writing on C++ and raylib focused on cross-platform, performance, architecture, and gameplay experience.*
+*PSX-style Racing game writing on C++ and raylib focused on cross-platform, performance, architecture, and gameplay experience.*
 
 ---
 
@@ -107,7 +107,7 @@ build\src\TurboRivals.exe
 
 ---
 
-# 📸 Screenshots Gameplay
+# 📸 Gameplay screenshot
 
 ![Gameplay](doc/screenshots/gameplay.png)
 
