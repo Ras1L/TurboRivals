@@ -102,7 +102,8 @@ build\src\TurboRivals.exe
 | Key | Action |
 |---|---|
 | WASD | Movement |
-| SPACE | Action |
+| SPACE | Brake |
+| Arrows | Camera movements |
 | ESC | Exit |
 
 ---
