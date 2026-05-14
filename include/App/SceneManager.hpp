@@ -1,26 +1,34 @@
 #ifndef APP_SCENE_MANAGER_HPP
 #define APP_SCENE_MANAGER_HPP
 
-#include "App/GameSceneInfo.hpp"
 #include "App/IScene.hpp"
+#include "App/MenuScene.hpp"
+#include "App/GameScene.hpp"
 #include <memory>
-
-enum class Scene {
-    MENU,
-    GAME
-};
 
 class SceneManager {
 public:
-    template <class ...Args>
-    void Set(Scene scene, Args&&... args);
+    template <class... Args>
+    void Set(Scene scene, Args&&... args)
+    {
+        if (current) {
+            current -> Unload();
+        }
+        switch (scene)
+        {
+            case Scene::MENU:
+                current = std::make_unique<MenuScene>();
+                break;
+            case Scene::GAME:
+                current = std::make_unique<GameScene>(args...);
+                break;
+        }
+        current -> Load();
+    }
 
-    void Update(float dt); // TODO: возможно здесь надо будет сделать чтоб сцены посылали сигнал, что они закроются, и сцена менялась там на ходу
+    void Update(float dt);
     void Render() const;
     void Reset();
-
-    // может сделаю этот метод гибким потом
-    GameSceneInfo GetInfo();
 
 private:
     std::unique_ptr<IScene> current;

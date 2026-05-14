@@ -1,6 +1,9 @@
-add_executable(${PROJECT_NAME} 
+set (MY_SOURCES 
     main.cpp
     App/Application.cpp
+    App/GameScene.cpp
+    App/MenuScene.cpp
+    App/SceneManager.cpp
     Core/Physics.cpp
     Core/GameWorld.cpp
     Core/VehiclePhysicsComponent.cpp
@@ -15,6 +18,15 @@ add_executable(${PROJECT_NAME}
     Network/NetworkManager.cpp
     Network/Client.cpp
     Network/Server.cpp
+)
+
+file(GLOB IMGUI_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../external/imgui-1.92.7/*cpp")
+file (GLOB RLIMGUI_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/../external/rlImGui-Raylib_5_5/*cpp")
+
+add_executable(${PROJECT_NAME} 
+    ${MY_SOURCES}
+    ${IMGUI_SOURCES}
+    ${RLIMGUI_SOURCES}
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

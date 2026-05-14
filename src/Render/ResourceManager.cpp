@@ -18,7 +18,7 @@ void ResourceManager::InitModels()
 {
     for (size_t i = 0; i < model_paths.size(); ++i)
     {
-        ModelID id = static_cast<ModelID>(i);
+        ModelID id = static_cast<ModelID>(i+1); // + 1 потому что первый элем. enum-а это NONE
         Model m = LoadModel(model_paths[i].c_str());
 
         models.insert({id, m});

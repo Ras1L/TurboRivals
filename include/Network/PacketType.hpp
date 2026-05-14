@@ -6,7 +6,8 @@
 enum class PacketType : uint8_t
 {
     ClientInput,
-    CurrentTransforms
+    CurrentTransforms,
+    GameWorldInfo
 };
 
 #endif

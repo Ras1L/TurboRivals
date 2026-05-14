@@ -3,6 +3,7 @@
 
 #include "Core/Physics.hpp"
 #include "Core/CollisionMeshData.hpp"
+#include "LinearMath/btDefaultMotionState.h"
 #include <BulletCollision/CollisionShapes/btTriangleMesh.h>
 #include <BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
 #include <memory>

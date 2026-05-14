@@ -20,9 +20,9 @@ public:
     void Update() override;
 
 private:
-    void OnConnect(ENetPeer* peer) override;
-    void OnDisconnect(ENetPeer* peer) override;
-    void OnReceive(ENetPeer* peer, ENetPacket* packet) override;
+    void   OnConnect(ENetPeer* peer) override;
+    void   OnDisconnect(ENetPeer* peer) override;
+    NetMsg OnReceive(ENetPeer* peer, ENetPacket* packet) override;
 
 private:
     ENet::Addr address;

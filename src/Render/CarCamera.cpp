@@ -9,11 +9,11 @@ Vector3 cameraOffset{ 0.f, 5.f, cameraOffsetZ};
 
 CarCamera::CarCamera()
 {
-    camera.position = { 0 };
-    camera.target = {0.f, 0.f, 0.f};
-    camera.up = {0.f, 1.f, 0.f};
-    camera.fovy = 60.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
+    m_camera.position = { 0 };
+    m_camera.target = {0.f, 0.f, 0.f};
+    m_camera.up = {0.f, 1.f, 0.f};
+    m_camera.fovy = 60.0f;
+    m_camera.projection = CAMERA_PERSPECTIVE;
 }
 
 void CarCamera::Update(const CameraInput& input, Transform3D transform, float dt)
@@ -32,11 +32,11 @@ void CarCamera::Update(const CameraInput& input, Transform3D transform, float dt
 
     Vector3 rotatedOffset = Vector3RotateByQuaternion(cameraOffset, transform.rot);
 
-    camera.position = Vector3Add(transform.pos, rotatedOffset);
+    m_camera.position = Vector3Add(transform.pos, rotatedOffset);
     if (!input.cameraLookBack) {
-        camera.target = Vector3Add(camera.position, forward);
+        m_camera.target = Vector3Add(m_camera.position, forward);
     } else {
-        camera.target = Vector3Add(camera.position, Vector3Negate(forward));
+        m_camera.target = Vector3Add(m_camera.position, Vector3Negate(forward));
     }
-    camera.up = up;
+    m_camera.up = up;
 }

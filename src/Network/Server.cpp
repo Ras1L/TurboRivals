@@ -39,7 +39,7 @@ void Server::OnDisconnect(ENetPeer* peer)
     }
 }
 
-void Server::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пакеты разные приходят
+NetMsg Server::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пакеты разные приходят
 {
     (void) peer;
     PacketType pt = static_cast<PacketType>(packet -> data[0]);
@@ -47,10 +47,10 @@ void Server::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот паке
     {
         case PacketType::ClientInput:
             // TODO
-            return;
+            return std::nullopt;
 
         default:
-            break;
+            return std::nullopt;
     }
 }
 
@@ -87,5 +87,5 @@ void Server::SendBroadcast(float dt) // это для всех передава�
 
 void Server::Update()
 {
-    ENet::PollEvents(server.get(), *this);
+    ENet::PollEvents(server.get(), *this, 0);
 }

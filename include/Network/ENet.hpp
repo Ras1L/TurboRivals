@@ -2,7 +2,8 @@
 #define NETWORK_ENET_HPP
 
 #include "Network/INetworkNode.hpp"
-
+#include "Network/NetworkMessage.hpp"
+#include "enet/types.h"
 #include <enet/enet.h>
 #include <memory>
 
@@ -18,10 +19,17 @@ namespace ENet
         }
     };
 
+    struct ENetPacketDeleter {
+        void operator()(ENetPacket* packet) {
+            enet_packet_destroy(packet);
+        }
+    };
+
     using Addr = ENetAddress;
     using Host = std::unique_ptr<ENetHost, ENetHostDeleter>;
     using Peer = std::unique_ptr<ENetPeer>;
     using Node = std::unique_ptr<INetworkNode>;
+    using Packet = std::unique_ptr<ENetPacket, ENetPacketDeleter>;
 
     void Initialize();
     void Deinitialize();
@@ -33,7 +41,7 @@ namespace ENet
     Peer ConnectToPeer(ENetHost* host, ENetAddress* address);
     void DisconnectPeer(ENetHost* host, ENetPeer* peer); // peer отсоединяем от host
 
-    void PollEvents(ENetHost* host, INetworkNode& listener);
+    NetMsg PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms);
 
     void SendPacketToPeer(ENetPeer* peer);
     void SendFromHostBroadcast(ENetHost* server);

@@ -4,13 +4,15 @@
 #include "Network/NetworkStatus.hpp"
 #include "Sound/SoundID.hpp"
 #include "Core/ModelID.hpp"
+#include <string>
 
 struct GameSceneInfo {
-    NetworkStatus net_stat;
-    SoundID       music;
-    ModelID       track;
-    ModelID       env;
-    ModelID       my_car;
+    NetworkStatus net_stat = NetworkStatus::OFFLINE;
+    SoundID       music    = SoundID::MUS_NONE;
+    ModelID       track    = ModelID::NONE;
+    ModelID       env      = ModelID::NONE;
+    ModelID       car      = ModelID::NONE;
+    std::string   server_ip = "127.0.0.1";
 };
 
 #endif

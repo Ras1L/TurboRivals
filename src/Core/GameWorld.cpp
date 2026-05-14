@@ -66,3 +66,21 @@ void GameWorld::DestroyTrack()
 void GameWorld::CreateEnvironment(ModelID mid) {
     env = {{mid}};
 }
+
+std::vector<const Car*> GameWorld::GetCars() const
+{
+    std::vector<const Car*> all_cars;
+    all_cars.push_back(local_car.get());
+    for (auto& car : cars) {
+        all_cars.push_back(car.get());
+    }
+    return all_cars;
+}
+
+const Track* GameWorld::GetTrack() const {
+    return &track;
+}
+
+const Environment* GameWorld::GetEnvironment() const {
+    return &env;
+}

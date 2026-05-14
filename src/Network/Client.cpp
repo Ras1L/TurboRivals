@@ -1,7 +1,9 @@
 #include "Network/Client.hpp"
 #include "Network/ENet.hpp"
-#include "Network/PacketType.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "enet/enet.h"
+#include "enet/types.h"
+#include <cstring>
 
 void Client::Init()
 {
@@ -35,22 +37,27 @@ void Client::OnDisconnect(ENetPeer* peer) // не знаю что делать, 
     (void) peer;
 }
 
-void Client::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пакеты разные приходят
+NetMsg Client::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пакеты разные приходят
 {
     if (peer == server.get()) // мало ли кто пришел, может мы его не знаем
     {
-        PacketType pt = static_cast<PacketType>(packet -> data[0]);
-        switch (pt) 
-        {
-            case PacketType::CurrentTransforms:
-                // TODO: пакет пришедший интерпретировать как массив трансформов для машин и возвращать нужный
-                // или сделать чтоб сервер избранно отправлял пакеты клиентам и возвращать std::optional<Transform3D> здесь
-                return;
+        if (packet -> dataLength > 0) {
+            NetworkMessage msg;
 
-            default:
-                break;
+            auto type_size = sizeof(msg.type); // пока type_size это 1 байт, т. к. uint8_t
+            std::memcpy(&msg.type, packet -> data, type_size);
+
+            auto payload_size = packet -> dataLength - type_size;
+            if (payload_size > 0) {
+                msg.payload.resize(payload_size);
+                auto payload_ptr = static_cast<uint8_t*>(packet -> data) + type_size; // нужно привести void* к другому типу* чтоб сдвинуть
+                std::memcpy(msg.payload.data(), payload_ptr, payload_size);
+
+                return msg;
+            }
         }
     }
+    return std::nullopt;
 }
 
 void Client::SendToServer(float dt)
@@ -66,7 +73,12 @@ void Client::SendToServer(float dt)
     accum -= tickRate;
 }
 
+NetMsg Client::Receive(enet_uint32 ms)
+{
+    return ENet::PollEvents(client.get(), *this, ms);
+}
+
 void Client::Update()
 {
-    ENet::PollEvents(client.get(), *this);
+    ENet::PollEvents(client.get(), *this, 0);
 }

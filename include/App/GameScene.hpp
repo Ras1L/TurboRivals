@@ -3,8 +3,10 @@
 
 #include "App/IScene.hpp"
 #include "App/GameSceneInfo.hpp"
+#include "App/SceneSwitch.hpp"
 #include "Core/Environment.hpp"
 #include "Core/GameWorld.hpp"
+#include "Core/Session.hpp"
 #include "Network/NetworkManager.hpp"
 #include "Render/CarCamera.hpp"
 #include "Render/RenderSystem.hpp"
@@ -15,16 +17,18 @@
 
 class GameScene final : public IScene {
 public:
-    GameScene() = delete;
+    GameScene() = default; // на время, может определю как нибудь
     GameScene(const GameSceneInfo& info);
 
     void Load() override;
-    void Update(float dt) override;
+    SceneSwitch Update(float dt) override;
     void Render() const override;
     void Unload() override;
 
 private:
     GameSceneInfo   info;
+    SessionState    session;
+
     InputManager    input;
     CarCamera       camera;
     NetworkManager  network;

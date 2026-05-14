@@ -1,28 +1,21 @@
 #include "App/SceneManager.hpp"
-#include "App/MenuScene.hpp"
-#include "App/GameScene.hpp"
-
-template <class... Args>
-void SceneManager::Set(Scene scene, Args&&... args)
-{
-    if (current) {
-        current -> Unload();
-    }
-    switch (scene)
-    {
-        case Scene::MENU:
-            current = std::make_unique<MenuScene>();
-            break;
-        case Scene::GAME:
-            current = std::make_unique<GameScene>(args...);
-            break;
-    }
-    current -> Load();
-}
+#include "App/GameSceneInfo.hpp"
+#include "App/SceneSwitch.hpp"
 
 void SceneManager::Update(float dt)
 {
-    current -> Update(dt);
+    const auto& ss = current -> Update(dt);
+    if (ss.should_switch) {
+        switch (ss.next_scene)
+        {
+            case Scene::GAME:
+                Set(ss.next_scene, std::get<GameSceneInfo>(ss.next_scene_info)); // Если будет больше сцен нужно убрать конкретику про GameSceneInfo
+                break;
+            case Scene::MENU:
+                Set(ss.next_scene);
+                break;
+        }
+    }
 }
 
 void SceneManager::Render() const

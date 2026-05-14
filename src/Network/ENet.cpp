@@ -1,6 +1,8 @@
 #include "Network/ENet.hpp"
 #include "Network/INetworkNode.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "enet/enet.h"
+#include "enet/types.h"
 
 #include <cstdlib>
 #include <cstdio>
@@ -124,11 +126,12 @@ namespace ENet
         enet_peer_reset(peer); // Принудительно сбрасываем соединение, если за 3 секунды не получилось это сделать
     }
     
-    void PollEvents(ENetHost* host, INetworkNode& listener)
+    std::optional<NetworkMessage> PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms)
     {
         ENetEvent event;
+        NetMsg msg;
     
-        while (enet_host_service(host, &event, 0) > 0) { // 0 в аргументах функции - ожидание события в мс, для игрового цикла лучше без задержек
+        while (enet_host_service(host, &event, ms) > 0) { // 0 в аргументах функции - ожидание события в мс, для игрового цикла лучше без задержек
             switch (event.type)
             {
                 case ENET_EVENT_TYPE_CONNECT:
@@ -153,7 +156,7 @@ namespace ENet
                         );
                     }
                     // где то здесь будем читать данные с пакета
-                    listener.OnReceive(event.peer, event.packet);
+                    msg = listener.OnReceive(event.peer, event.packet);
                     // пакет удаляем, он нам больше не нужен, а то займет память, тем более 60 пакетов таких в секунду
                     enet_packet_destroy(event.packet);
                     break;
@@ -171,6 +174,7 @@ namespace ENet
                     break;
             }
         }
+        return msg;
     }
     
     void SendPacketToPeer(ENetPeer* peer)

@@ -1,7 +1,7 @@
 #ifndef NETWORK_NETWORK_MANAGER_HPP
 #define NETWORK_NETWORK_MANAGER_HPP
 
-#include "Core/Session.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "Network/ENet.hpp"
 #include "Network/IClient.hpp"
 #include "Network/IServer.hpp"
@@ -12,9 +12,10 @@ public:
     void Init(NetworkStatus status);
     void Deinit();
 
+    void Connect(std::string ip);
     void Update(float dt);
 
-    SessionState GetSessionState();
+    NetMsg WaitForStart(float seconds);
 
 private:
     ENet::Node node = nullptr;

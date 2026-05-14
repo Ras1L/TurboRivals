@@ -1,8 +1,10 @@
 #include "Network/NetworkManager.hpp"
 #include "Network/Client.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "Network/NetworkStatus.hpp"
 #include "Network/Server.hpp"
 #include "Network/ENet.hpp"
+#include "enet/types.h"
 
 void NetworkManager::Init(NetworkStatus status)
 {
@@ -41,6 +43,15 @@ void NetworkManager::Deinit()
     }
 }
 
+void NetworkManager::Connect(std::string ip)
+{
+    if (node) {
+        if (client) {
+            client->ConnectToServer(ip);
+        }
+    }
+}
+
 void NetworkManager::Update(float dt)
 {
     if (node) { 
@@ -52,4 +63,18 @@ void NetworkManager::Update(float dt)
             server->SendToClients(dt);
         }
     }
+}
+
+NetMsg NetworkManager::WaitForStart(float seconds)
+{
+    auto ms = static_cast<enet_uint32>(seconds * 1000.f);
+    if (node) {
+        if (client) {
+            client -> Receive(ms);
+        }
+        if (server) {
+            server -> SendBroadcast(tickRate); // мы не внутри цикла чтоб дельту передавать
+        }
+    }
+    return std::nullopt;
 }
