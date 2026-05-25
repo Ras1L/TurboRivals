@@ -3,6 +3,7 @@
 
 #include "Network/ENet.hpp"
 #include "Network/IServer.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "enet/enet.h"
 #include <unordered_map>
 
@@ -17,7 +18,7 @@ public:
     void SendToClients(float dt) override;
     void SendBroadcast(float dt) override;
 
-    void Update() override;
+    MsgQueue PollEvents() override;
 
 private:
     void   OnConnect(ENetPeer* peer) override;

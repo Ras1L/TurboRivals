@@ -1,35 +1,40 @@
 #include "Network/NetworkManager.hpp"
 #include "Network/Client.hpp"
 #include "Network/NetworkMessage.hpp"
+#include "Network/NetworkRole.hpp"
 #include "Network/NetworkStatus.hpp"
 #include "Network/Server.hpp"
 #include "Network/ENet.hpp"
-#include "enet/types.h"
 
-void NetworkManager::Init(NetworkStatus status)
+void NetworkManager::Init(NetworkRole role)
 {
-    switch (status)
+    switch (role)
     {
-        case NetworkStatus::OFFLINE:
+        case NetworkRole::OFFLINE:
+            node -> status = NetworkStatus::NONE;
             break;
 
-        case NetworkStatus::CLIENT:
+        case NetworkRole::CLIENT:
             ENet::Initialize();
             {
                 auto p = std::make_unique<Client>();
                 node.reset(p.get());
-                node->Init();
+                node -> Init();
                 client = p.get();
+
+                node -> status = NetworkStatus::IDLE;
             }
             break;
 
-        case NetworkStatus::SERVER:
+        case NetworkRole::SERVER:
             ENet::Initialize();
             {
                 auto p = std::make_unique<Server>();
                 node.reset(p.get());
-                node->Init();
+                node -> Init();
                 server = p.get();
+
+                node -> status = NetworkStatus::IDLE;
             }
             break;
     }
@@ -38,43 +43,70 @@ void NetworkManager::Init(NetworkStatus status)
 void NetworkManager::Deinit()
 {
     if (node) {
-        node->Destroy();
+        node -> Destroy();
         ENet::Deinitialize();
     }
+    node -> status = NetworkStatus::NONE;
 }
 
 void NetworkManager::Connect(std::string ip)
 {
     if (node) {
         if (client) {
-            client->ConnectToServer(ip);
+            client -> ConnectToServer(ip);
         }
     }
 }
 
-void NetworkManager::Update(float dt)
+MsgQueue NetworkManager::Update(float dt)
 {
-    if (node) { 
-        node->Update();
-        if (client) {
-            client->SendToServer(dt);
-        }
-        if (server) {
-            server->SendToClients(dt);
-        }
-    }
+    MsgQueue queue = PollEvents(); // Обработка событий
+    SendOutgoing(dt);             // Генерация событий
+    return queue;
 }
 
-NetMsg NetworkManager::WaitForStart(float seconds)
+MsgQueue NetworkManager::PollEvents()
 {
-    auto ms = static_cast<enet_uint32>(seconds * 1000.f);
+    MsgQueue queue;
+    if (node) {
+        queue = node -> PollEvents();
+    }
+    return queue;
+}
+
+void NetworkManager::SendOutgoing(float dt)
+{
     if (node) {
         if (client) {
-            client -> Receive(ms);
-        }
+            if (node -> status == NetworkStatus::PLAYING) { // TODO: Отправлять разные пакеты
+                client -> SendToServer(dt);
+            } else
+            if (node -> status == NetworkStatus::CONNECTED) { // Идет синхронизация
+                client -> SendToServer(dt);
+            }
+        } else
         if (server) {
-            server -> SendBroadcast(tickRate); // мы не внутри цикла чтоб дельту передавать
+            if (node -> status == NetworkStatus::PLAYING) {
+                server -> SendToClients(dt);
+            } else
+            if (node -> status == NetworkStatus::IDLE) {
+                server -> SendBroadcast(dt);
+            }
         }
     }
-    return std::nullopt;
+}
+
+void NetworkManager::SetStatus(NetworkStatus status)
+{
+    if (node) {
+        node -> status = status;
+    }
+}
+
+NetworkStatus NetworkManager::GetStatus() const
+{
+    if (node) {
+        return node -> status;
+    }
+    return NetworkStatus::NONE;
 }

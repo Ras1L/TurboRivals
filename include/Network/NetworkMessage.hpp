@@ -1,18 +1,17 @@
 #ifndef NETWORK_NETWORK_MESSAGE_HPP
 #define NETWORK_NETWORK_MESSAGE_HPP
 
+#include "Core/EasyBytes.hpp"
 #include "PacketType.hpp"
-#include "enet/types.h"
 #include <optional>
-#include <vector>
-
-using ByteBuffer = std::vector<enet_uint8>;
+#include <queue>
 
 struct NetworkMessage {
     PacketType type;
-    ByteBuffer payload;
+    EasyBytes  payload;
 };
 
-using NetMsg = std::optional<NetworkMessage>;
+using NetMsg   = std::optional<NetworkMessage>;
+using MsgQueue = std::queue<NetworkMessage>;
 
 #endif

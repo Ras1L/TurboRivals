@@ -4,10 +4,11 @@
 #include <cstdint>
 
 enum class SoundID : uint8_t {
-    MUS_NONE,
     MUS_DANGEROUS_GROUND,
+    
+    COUNT,
 
-    COUNT
+    MUS_NONE = 255
 };
 
 #endif

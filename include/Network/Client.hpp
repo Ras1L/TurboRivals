@@ -5,7 +5,6 @@
 #include "Network/IClient.hpp"
 #include "Network/NetworkMessage.hpp"
 #include "enet/enet.h"
-#include "enet/types.h"
 
 class Client final : public INetworkNode, public IClient {
 public:
@@ -15,10 +14,9 @@ public:
     void ConnectToServer(std::string ip) override;
     void DisconnectFromServer();
 
-    void   SendToServer(float dt) override;
-    NetMsg Receive(enet_uint32 ms) override; // нужно чтобы клиент до начала игры мог получить данные о сессии, схож с Update 
+    void SendToServer(float dt) override;
 
-    void Update() override;
+    MsgQueue PollEvents() override;
 
 private:
     void   OnConnect(ENetPeer* peer) override;

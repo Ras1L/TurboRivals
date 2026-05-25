@@ -1,28 +1,26 @@
 #ifndef APP_SCENE_MANAGER_HPP
 #define APP_SCENE_MANAGER_HPP
 
+#include "App/ApplicationContext.hpp"
 #include "App/IScene.hpp"
-#include "App/MenuScene.hpp"
-#include "App/GameScene.hpp"
+#include "Network/NetworkManager.hpp"
 #include <memory>
+
+struct Context {
+    NetworkManager& network;
+};
 
 class SceneManager {
 public:
-    template <class... Args>
-    void Set(Scene scene, Args&&... args)
+    SceneManager(ApplicationContext& context);
+
+    template <class S, class... Args>
+    void Set(Args&&... args)
     {
         if (current) {
             current -> Unload();
         }
-        switch (scene)
-        {
-            case Scene::MENU:
-                current = std::make_unique<MenuScene>();
-                break;
-            case Scene::GAME:
-                current = std::make_unique<GameScene>(args...);
-                break;
-        }
+        current = std::make_unique<S>(std::forward<Args>(args)...);
         current -> Load();
     }
 
@@ -32,6 +30,7 @@ public:
 
 private:
     std::unique_ptr<IScene> current;
+    ApplicationContext&     context;
 };
 
 #endif

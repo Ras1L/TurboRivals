@@ -13,7 +13,7 @@ void GameWorld::Init(const SessionState& session, const GameWorldInitData& init_
     CreateEnvironment(session.env);
     cars.reserve(MAX_PLAYERS_CNT);
     for (auto& player : session.players) {
-        CreateCar(player.spawn.x, player.spawn.z, player.car, player.is_local); // id из SessionPlayer не используется
+        CreateCar(player.spawn.x, player.spawn.z, player.car, player.id == 0);
     }
 }
 

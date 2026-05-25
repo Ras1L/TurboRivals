@@ -2,10 +2,16 @@
 #define APP_MENU_SCENE_HPP
 
 #include "App/IScene.hpp"
-#include "Network/NetworkStatus.hpp"
+#include "Network/NetworkManager.hpp"
+#include "Network/NetworkRole.hpp"
+
+enum class MenuMode : uint8_t {
+    MAIN,
+    LOBBY
+};
 
 struct GameConfig {
-    NetworkStatus mode = NetworkStatus::OFFLINE;
+    NetworkRole mode = NetworkRole::OFFLINE;
     int  music = 0;
     int  track = 0;
     int  env   = 0;
@@ -15,16 +21,27 @@ struct GameConfig {
 
 class MenuScene : public IScene {
 public:
+    MenuScene(NetworkManager& network);
+
     virtual void        Load()           override;
     virtual SceneSwitch Update(float dt) override;
     virtual void        Render() const   override;
     virtual void        Unload()         override;
 
 private:
+    void DrawMain() const;
+    void DrawLobby() const;
+
+    void DrawOwnerMenu(GameConfig& config) const;
+    void DrawClientMenu(GameConfig& config) const;
+
+    void SwitchToLobby() const;
+    void SwitchToGame() const;
+
+private:
+    mutable MenuMode mode = MenuMode::MAIN;
+    NetworkManager& network;
     mutable GameConfig config;
 };
-
-void DrawOwnerMenu(GameConfig& config);
-void DrawClientMenu(GameConfig& config);
 
 #endif

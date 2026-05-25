@@ -2,7 +2,6 @@
 #define APP_GAME_SCENE_HPP
 
 #include "App/IScene.hpp"
-#include "App/GameSceneInfo.hpp"
 #include "App/SceneSwitch.hpp"
 #include "Core/Environment.hpp"
 #include "Core/GameWorld.hpp"
@@ -17,8 +16,7 @@
 
 class GameScene final : public IScene {
 public:
-    GameScene() = default; // на время, может определю как нибудь
-    GameScene(const GameSceneInfo& info);
+    GameScene(const SessionState& session, NetworkManager& network);
 
     void Load() override;
     SceneSwitch Update(float dt) override;
@@ -26,12 +24,12 @@ public:
     void Unload() override;
 
 private:
-    GameSceneInfo   info;
     SessionState    session;
 
-    InputManager    input;
+    InputManager    input_manager;
+    PlayerInput     input;
     CarCamera       camera;
-    NetworkManager  network;
+    NetworkManager& network;
     ResourceManager resources;
     RenderSystem    render;
     GameWorld       world;

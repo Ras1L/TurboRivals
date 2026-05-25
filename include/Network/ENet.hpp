@@ -29,7 +29,7 @@ namespace ENet
     using Host = std::unique_ptr<ENetHost, ENetHostDeleter>;
     using Peer = std::unique_ptr<ENetPeer>;
     using Node = std::unique_ptr<INetworkNode>;
-    using Packet = std::unique_ptr<ENetPacket, ENetPacketDeleter>;
+    using Packet = std::unique_ptr<ENetPacket, ENetPacketDeleter>; // для красоты, просто ENet иногда на себя ответственность берет за очистку пакетов
 
     void Initialize();
     void Deinitialize();
@@ -41,7 +41,7 @@ namespace ENet
     Peer ConnectToPeer(ENetHost* host, ENetAddress* address);
     void DisconnectPeer(ENetHost* host, ENetPeer* peer); // peer отсоединяем от host
 
-    NetMsg PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms);
+    MsgQueue PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms);
 
     void SendPacketToPeer(ENetPeer* peer);
     void SendFromHostBroadcast(ENetHost* server);

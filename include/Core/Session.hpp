@@ -6,9 +6,9 @@
 
 #include <cstdint>
 #include <vector>
+#include <optional>
 
 struct SessionPlayer {
-    bool    is_local;
     uint8_t id;
     ModelID car;
     Vector3 spawn;
@@ -19,5 +19,7 @@ struct SessionState {
     ModelID env;
     std::vector<SessionPlayer> players;
 };
+
+using Session = std::optional<SessionState>;
 
 #endif

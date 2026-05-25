@@ -1,6 +1,11 @@
 #include "App/SceneManager.hpp"
-#include "App/GameSceneInfo.hpp"
+#include "App/ApplicationContext.hpp"
+#include "App/GameScene.hpp"
+#include "App/MenuScene.hpp"
 #include "App/SceneSwitch.hpp"
+#include "Core/Session.hpp"
+
+SceneManager::SceneManager(ApplicationContext& context) : context(context) {}
 
 void SceneManager::Update(float dt)
 {
@@ -9,10 +14,10 @@ void SceneManager::Update(float dt)
         switch (ss.next_scene)
         {
             case Scene::GAME:
-                Set(ss.next_scene, std::get<GameSceneInfo>(ss.next_scene_info)); // Если будет больше сцен нужно убрать конкретику про GameSceneInfo
+                Set<GameScene>(std::get<SessionState>(ss.next_scene_info), context.network); // Если будет больше сцен нужно убрать конкретику про GameSceneInfo
                 break;
             case Scene::MENU:
-                Set(ss.next_scene);
+                Set<MenuScene>(context.network);
                 break;
         }
     }

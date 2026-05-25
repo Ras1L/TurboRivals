@@ -56,7 +56,7 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
     physic_world.addVehicle(vehicle.get());
 
     float wheelRadius = 0.2f;
-    float suspension = 0.8f;
+    float suspension = 0.6f;
 
     vehicle->addWheel(btVector3(0.9f, 0.2f, 1.5f), btVector3(0.f,-1.f,0.f), btVector3(1.f,0.f,0.f), suspension, wheelRadius, tuning, true);
     vehicle->addWheel(btVector3(-0.9f, 0.2f, 1.5f), btVector3(0.f,-1.f,0.f), btVector3(1.f,0.f,0.f), suspension, wheelRadius, tuning, true);
@@ -109,7 +109,7 @@ void VehiclePhysicsComponent::Update(const VehicleInput& input, float dt)
     }
 
     // Ограничение максимальной скорости
-    if (speed > 200.f) { engine = 0.f; }
+    if (speed > 120.f) { engine = 0.f; }
 
     // Стабилизация заноса
     btVector3 vel = chassis->getLinearVelocity();

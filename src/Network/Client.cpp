@@ -1,9 +1,9 @@
 #include "Network/Client.hpp"
 #include "Network/ENet.hpp"
+#include "Network/MessageProcessor.hpp"
 #include "Network/NetworkMessage.hpp"
+#include "Network/NetworkStatus.hpp"
 #include "enet/enet.h"
-#include "enet/types.h"
-#include <cstring>
 
 void Client::Init()
 {
@@ -27,35 +27,23 @@ void Client::DisconnectFromServer()
     ENet::DisconnectPeer(client.get(), server.get());
 }
 
-void Client::OnConnect(ENetPeer* peer) // к клиенту не подключаются, он подключается к серверу
+void Client::OnConnect(ENetPeer* peer) // если клиент подключился к серверу
 {
     (void) peer;
+    status = NetworkStatus::CONNECTED;
 }
 
-void Client::OnDisconnect(ENetPeer* peer) // не знаю что делать, если клиента отсоединили
+void Client::OnDisconnect(ENetPeer* peer) // если отсоединили или отсоединился
 {
     (void) peer;
+    status = NetworkStatus::DISCONNECTED;
 }
 
 NetMsg Client::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пакеты разные приходят
 {
     if (peer == server.get()) // мало ли кто пришел, может мы его не знаем
     {
-        if (packet -> dataLength > 0) {
-            NetworkMessage msg;
-
-            auto type_size = sizeof(msg.type); // пока type_size это 1 байт, т. к. uint8_t
-            std::memcpy(&msg.type, packet -> data, type_size);
-
-            auto payload_size = packet -> dataLength - type_size;
-            if (payload_size > 0) {
-                msg.payload.resize(payload_size);
-                auto payload_ptr = static_cast<uint8_t*>(packet -> data) + type_size; // нужно привести void* к другому типу* чтоб сдвинуть
-                std::memcpy(msg.payload.data(), payload_ptr, payload_size);
-
-                return msg;
-            }
-        }
+        return MessageProcessor::Serialize(packet);
     }
     return std::nullopt;
 }
@@ -73,12 +61,7 @@ void Client::SendToServer(float dt)
     accum -= tickRate;
 }
 
-NetMsg Client::Receive(enet_uint32 ms)
+MsgQueue Client::PollEvents()
 {
-    return ENet::PollEvents(client.get(), *this, ms);
-}
-
-void Client::Update()
-{
-    ENet::PollEvents(client.get(), *this, 0);
+    return ENet::PollEvents(client.get(), *this, 0);
 }

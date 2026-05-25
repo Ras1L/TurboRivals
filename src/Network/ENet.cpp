@@ -126,10 +126,11 @@ namespace ENet
         enet_peer_reset(peer); // Принудительно сбрасываем соединение, если за 3 секунды не получилось это сделать
     }
     
-    std::optional<NetworkMessage> PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms)
+    MsgQueue PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms)
     {
         ENetEvent event;
-        NetMsg msg;
+        NetMsg    msg;
+        MsgQueue  queue;
     
         while (enet_host_service(host, &event, ms) > 0) { // 0 в аргументах функции - ожидание события в мс, для игрового цикла лучше без задержек
             switch (event.type)
@@ -173,8 +174,11 @@ namespace ENet
                 case ENET_EVENT_TYPE_NONE: // тишина, делать нечего
                     break;
             }
+            if (msg.has_value()) {
+                queue.push(msg.value());
+            }
         }
-        return msg;
+        return queue;
     }
     
     void SendPacketToPeer(ENetPeer* peer)

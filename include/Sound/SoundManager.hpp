@@ -7,7 +7,7 @@
 
 class SoundManager {
 public:
-    void Init(SoundID id);
+    void Init();
     void Update();
     void Close();
 

@@ -1,7 +1,7 @@
 #ifndef APP_SCENE_SWITCH_HPP
 #define APP_SCENE_SWITCH_HPP
 
-#include "App/GameSceneInfo.hpp"
+#include "Core/Session.hpp"
 #include <variant>
 
 enum class Scene {
@@ -12,7 +12,7 @@ enum class Scene {
 struct SceneSwitch {
     bool  should_switch;
     Scene next_scene;
-    std::variant<GameSceneInfo> next_scene_info;
+    std::variant<SessionState> next_scene_info;
 };
 
 #endif

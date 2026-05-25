@@ -3,11 +3,14 @@
 
 #include <cstdint>
 
-enum class NetworkStatus : uint8_t 
-{
-    OFFLINE,
-    CLIENT,
-    SERVER
+enum class NetworkStatus : uint8_t {
+    NONE,
+    IDLE,
+    CONNECTED,
+    SYNCHRONYZED,
+    READY,
+    PLAYING,
+    DISCONNECTED
 };
 
 #endif

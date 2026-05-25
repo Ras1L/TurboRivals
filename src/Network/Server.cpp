@@ -1,6 +1,7 @@
 #include "Network/Server.hpp"
 #include "Network/ENet.hpp"
-#include "Network/PacketType.hpp"
+#include "Network/MessageProcessor.hpp"
+#include "Network/NetworkMessage.hpp"
 
 #include <algorithm>
 
@@ -22,10 +23,11 @@ void Server::DisconnectClient(uint8_t id)
     }
 }
 
-void Server::OnConnect(ENetPeer* peer)
+void Server::OnConnect(ENetPeer* peer) // Здесь сервер не меняет состояние он почти всегда просто IDLE
 {
-    // peer -> data тоже надо, но пока хз что там должно быть
-    while (!clients.insert({client_ids++, ENet::Peer(peer)}).second) {}
+    auto current_id = client_ids++;
+    clients.insert({current_id, ENet::Peer(peer)});
+    peer -> data = reinterpret_cast<void*>(static_cast<uintptr_t>(current_id));
 }
 
 void Server::OnDisconnect(ENetPeer* peer)
@@ -41,17 +43,12 @@ void Server::OnDisconnect(ENetPeer* peer)
 
 NetMsg Server::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пакеты разные приходят
 {
-    (void) peer;
-    PacketType pt = static_cast<PacketType>(packet -> data[0]);
-    switch (pt) 
+    auto id = static_cast<uint8_t*>(peer -> data)[0]; // что за клиент пришел
+    if (clients.contains(id))
     {
-        case PacketType::ClientInput:
-            // TODO
-            return std::nullopt;
-
-        default:
-            return std::nullopt;
+        return MessageProcessor::Serialize(packet);
     }
+    return std::nullopt;
 }
 
 void Server::SendToClient(uint8_t id, float dt) // это избранные данные клиентам передавать
@@ -85,7 +82,7 @@ void Server::SendBroadcast(float dt) // это для всех передава�
     accum -= tickRate;
 }
 
-void Server::Update()
+MsgQueue Server::PollEvents()
 {
-    ENet::PollEvents(server.get(), *this, 0);
+    return ENet::PollEvents(server.get(), *this, 0);
 }

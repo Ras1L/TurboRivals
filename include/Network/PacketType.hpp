@@ -6,8 +6,10 @@
 enum class PacketType : uint8_t
 {
     ClientInput,
-    CurrentTransforms,
-    GameWorldInfo
+    PlayerTransforms,
+
+    ClientConfig,
+    ServerGameConfig,
 };
 
 #endif

@@ -12,6 +12,7 @@ public:
 
 protected:
     mutable bool should_switch = false;
+    mutable Scene next_scene;
 };
 
 #endif

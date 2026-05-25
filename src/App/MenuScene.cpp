@@ -1,7 +1,10 @@
 #include "App/MenuScene.hpp"
-#include "App/GameSceneInfo.hpp"
 #include "App/SceneSwitch.hpp"
 #include "Core/ModelID.hpp"
+#include "Core/Session.hpp"
+#include "Network/MessageProcessor.hpp"
+#include "Network/NetworkManager.hpp"
+#include "Network/NetworkRole.hpp"
 #include "Network/NetworkStatus.hpp"
 #include "rlImGui.h"
 #include "imgui.h"
@@ -33,6 +36,8 @@ static constexpr std::array<const char*, 3> cars = {
     "Horai BX300 1996"
 };
 
+MenuScene::MenuScene(NetworkManager& network) : network(network) {}
+
 void MenuScene::Load()
 {
     rlImGuiSetup(false);
@@ -45,24 +50,41 @@ void MenuScene::Unload()
 
 SceneSwitch MenuScene::Update(float dt)
 {
-    (void)dt;
-    static SceneSwitch ss = { false };
+    static SceneSwitch  ss = { false };
+    static SessionState session = {
+        static_cast<ModelID>(config.track + cars.size() + environments.size()),
+        static_cast<ModelID>(config.env + cars.size()),
+        {{ 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} }}
+    };
+
+    if (mode == MenuMode::LOBBY) {
+        auto queue = network.Update(dt); // TODO: доделать NetworkManager::SendOutgoing
+        session = MessageProcessor::ApplyChanges(session, queue);
+    }
+
     if (should_switch) {
         ss.should_switch = true;
-        ss.next_scene = Scene::GAME;
-        ss.next_scene_info = GameSceneInfo {
-            config.mode,
-            static_cast<SoundID>(config.music),
-            static_cast<ModelID>(config.track),
-            static_cast<ModelID>(config.env),
-            static_cast<ModelID>(config.car),
-            config.server_ip
-        };
+        ss.next_scene = next_scene;
+        ss.next_scene_info = session;
     }
     return ss;
 }
 
 void MenuScene::Render() const
+{
+    switch (mode)
+    {
+        case MenuMode::MAIN:
+            DrawMain();
+            break;
+
+        case MenuMode::LOBBY:
+            DrawLobby();
+            break;
+    }
+}
+
+void MenuScene::DrawMain() const
 {
     rlImGuiBegin();
     ImGui::Begin(GAME_TITLE);
@@ -71,31 +93,50 @@ void MenuScene::Render() const
 
     auto currentMode = static_cast<int>(config.mode);
     if (ImGui::Combo("Network Mode", &currentMode, modes.data(), modes.size())) {
-        config.mode = static_cast<NetworkStatus>(currentMode);
+        config.mode = static_cast<NetworkRole>(currentMode);
     }
 
     ImGui::Separator();
     switch (config.mode)
     {
-        case NetworkStatus::SERVER:
+        case NetworkRole::SERVER:
             DrawOwnerMenu(config);
             break;
-        case NetworkStatus::CLIENT:
+        case NetworkRole::CLIENT:
             DrawClientMenu(config);
             break;
-        case NetworkStatus::OFFLINE:
+        case NetworkRole::OFFLINE:
             DrawOwnerMenu(config);
             break;
     }
     if (ImGui::Button("Start")) {
-        should_switch = true;
+        if (config.mode == NetworkRole::OFFLINE) {
+            SwitchToGame();
+        } else {
+            SwitchToLobby();
+        }
     }
 
     ImGui::End();
     rlImGuiEnd();
 }
 
-void DrawOwnerMenu(GameConfig& config)
+void MenuScene::DrawLobby() const
+{
+    rlImGuiBegin();
+    ImGui::Begin(GAME_TITLE);
+
+    ImGui::Text(GAME_TITLE);
+    ImGui::Text("Waiting for players...");
+    if (ImGui::Button("Start")) {
+        SwitchToGame();
+    }
+
+    ImGui::End();
+    rlImGuiEnd();
+}
+
+void MenuScene::DrawOwnerMenu(GameConfig& config) const
 {
     ImGui::Combo("Car", &config.car, cars.data(), cars.size());
     ImGui::Combo("Track", &config.track, tracks.data(), tracks.size());
@@ -103,8 +144,22 @@ void DrawOwnerMenu(GameConfig& config)
     ImGui::Combo("Music", &config.music, music.data(), music.size());
 }
 
-void DrawClientMenu(GameConfig& config)
+void MenuScene::DrawClientMenu(GameConfig& config) const
 {
     ImGui::Combo("Car", &config.car, cars.data(), cars.size());
     ImGui::InputText("Connect to IP", config.server_ip, sizeof(config.server_ip));
+}
+
+void MenuScene::SwitchToLobby() const
+{
+    mode = MenuMode::LOBBY;
+    network.Init(config.mode);
+    network.Connect(config.server_ip);
+}
+
+void MenuScene::SwitchToGame() const
+{
+    should_switch = true;
+    next_scene = Scene::GAME;
+    network.SetStatus(NetworkStatus::PLAYING);
 }

@@ -6,6 +6,7 @@ set (MY_SOURCES
     App/SceneManager.cpp
     Core/Physics.cpp
     Core/GameWorld.cpp
+    Core/EasyBytes.cpp
     Core/VehiclePhysicsComponent.cpp
     Core/TrackCollisionComponent.cpp
     Render/CarCamera.cpp
@@ -16,6 +17,7 @@ set (MY_SOURCES
     Sound/SoundManager.cpp
     Network/ENet.cpp
     Network/NetworkManager.cpp
+    Network/MessageProcessor.cpp
     Network/Client.cpp
     Network/Server.cpp
 )

@@ -1,10 +1,11 @@
 #include "App/Application.hpp"
+#include "App/MenuScene.hpp"
 #include "raylib.h"
 
 void Application::exec()
 {
     window.Create();
-    scene_manager.Set(Scene::MENU);
+    scene_manager.Set<MenuScene>(context.network);
 
     while (!WindowShouldClose())
     {

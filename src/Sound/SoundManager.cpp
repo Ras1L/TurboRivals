@@ -2,14 +2,14 @@
 #include "Sound/SoundID.hpp"
 #include "raylib.h"
 
-void SoundManager::Init(SoundID id)
+void SoundManager::Init()
 {
     InitAudioDevice();
     musics = {
         {SoundID::MUS_DANGEROUS_GROUND, LoadMusicStream("assets/musics/dangerous_ground.mp3")}
     };
-    currentID = id;
-    current = &musics[id];
+    currentID = static_cast<SoundID>(0);
+    current = &musics[currentID];
     Play(currentID);
 }
 
