@@ -43,8 +43,8 @@ namespace ENet
 
     MsgQueue PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms);
 
-    void SendPacketToPeer(ENetPeer* peer);
-    void SendFromHostBroadcast(ENetHost* server);
+    void SendPacketToPeer(ENetPeer* peer, const void* data, size_t size);
+    void SendFromHostBroadcast(ENetHost* server, const void* data, size_t size);
 
     void SetAddressIP(ENetAddress* address, std::string ip);
 }

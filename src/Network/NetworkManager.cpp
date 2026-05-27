@@ -58,11 +58,15 @@ void NetworkManager::Connect(std::string ip)
     }
 }
 
-MsgQueue NetworkManager::Update(float dt)
+MsgQueue NetworkManager::Update(const NetworkMessage& msg, float dt)
 {
-    MsgQueue queue = PollEvents(); // Обработка событий
-    SendOutgoing(dt);             // Генерация событий
-    return queue;
+    if (node)
+    {
+        MsgQueue queue = PollEvents(); // Обработка событий
+        SendOutgoing(msg, dt);        // Генерация событий
+        return queue;
+    }
+    return MsgQueue{};
 }
 
 MsgQueue NetworkManager::PollEvents()
@@ -74,23 +78,23 @@ MsgQueue NetworkManager::PollEvents()
     return queue;
 }
 
-void NetworkManager::SendOutgoing(float dt)
+void NetworkManager::SendOutgoing(const NetworkMessage& msg, float dt)
 {
     if (node) {
         if (client) {
             if (node -> status == NetworkStatus::PLAYING) { // TODO: Отправлять разные пакеты
-                client -> SendToServer(dt);
+                client -> SendToServer(msg, dt);
             } else
             if (node -> status == NetworkStatus::CONNECTED) { // Идет синхронизация
-                client -> SendToServer(dt);
+                client -> SendToServer(msg, dt);
             }
         } else
         if (server) {
             if (node -> status == NetworkStatus::PLAYING) {
-                server -> SendToClients(dt);
+                server -> SendToClients(msg, dt);
             } else
             if (node -> status == NetworkStatus::IDLE) {
-                server -> SendBroadcast(dt);
+                server -> SendBroadcast(msg, dt);
             }
         }
     }

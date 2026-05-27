@@ -1,4 +1,5 @@
 #include "Network/Client.hpp"
+#include "Core/EasyBytes.hpp"
 #include "Network/ENet.hpp"
 #include "Network/MessageProcessor.hpp"
 #include "Network/NetworkMessage.hpp"
@@ -48,15 +49,16 @@ NetMsg Client::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пак
     return std::nullopt;
 }
 
-void Client::SendToServer(float dt)
+void Client::SendToServer(const NetworkMessage& msg, float dt)
 {
-    // TODO: формируем пакет, просто PlayerInput, шлём серверу
-    // отдадим NetworkManager массив байт, его длину, а в массив байт еще запишем тип пакета
+    EasyBytes bytes;
+    bytes.Write(msg.type);
+    bytes.Write(msg.payload.Data(), msg.payload.Size());
 
     accum += dt;
     if (accum >= tickRate)
     {
-        ENet::SendPacketToPeer(server.get());
+        ENet::SendPacketToPeer(server.get(), bytes.Data(), bytes.Size());
     }
     accum -= tickRate;
 }

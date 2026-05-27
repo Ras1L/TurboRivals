@@ -17,10 +17,10 @@ public:
     EasyBytes(const void* data, size_type size);
 
     EasyBytes(const EasyBytes& rhs);
-    EasyBytes operator=(const EasyBytes& rhs);
+    EasyBytes& operator=(const EasyBytes& rhs);
     
     EasyBytes(EasyBytes&& rhs) noexcept;
-    EasyBytes operator=(EasyBytes&& rhs) noexcept;
+    EasyBytes& operator=(EasyBytes&& rhs) noexcept;
 
     ~EasyBytes() noexcept;
 
@@ -44,6 +44,8 @@ public:
         return value;
     }
 
+    EasyBytes Read() const;
+
     template <class T>
     requires std::is_trivially_copyable_v<T>
     void Write(const T& value)
@@ -53,13 +55,15 @@ public:
         buffer.resize(old_size + value_size);
         std::memcpy(buffer.data() + old_size, &value, value_size);
     }
+    
+    void Write(const void*, size_type data_size);
 
     template <class... Args>
     requires std::is_trivially_copyable_v<Args...>
     void WriteAll(Args&&... args)
     {
         Clear();
-        (Write(args), ...); // std::forward и перемещения не имеют смысла если работать с массивом байт
+        (Write(args), ...); // std::forward и перемещения не имеют смысла если работать нужно с массивом байт
     }
 
 private:

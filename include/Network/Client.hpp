@@ -14,7 +14,7 @@ public:
     void ConnectToServer(std::string ip) override;
     void DisconnectFromServer();
 
-    void SendToServer(float dt) override;
+    void SendToServer(const NetworkMessage& msg, float dt) override;
 
     MsgQueue PollEvents() override;
 

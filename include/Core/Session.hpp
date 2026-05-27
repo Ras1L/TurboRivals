@@ -1,6 +1,7 @@
 #ifndef CORE_SESSION_HPP
 #define CORE_SESSION_HPP
 
+#include "Core/Input.hpp"
 #include "Core/ModelID.hpp"
 #include "raylib.h"
 
@@ -20,6 +21,17 @@ struct SessionState {
     std::vector<SessionPlayer> players;
 };
 
+struct SessionPlayerRuntime {
+    SessionPlayer player;
+    Vector3       pos;
+    VehicleInput  input;
+};
+
+struct SessionStateRuntime {
+    std::vector<SessionPlayerRuntime> players;
+};
+
 using Session = std::optional<SessionState>;
+using SessionRuntime = std::optional<SessionStateRuntime>;
 
 #endif

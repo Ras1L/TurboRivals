@@ -4,6 +4,7 @@
 #include "Core/Session.hpp"
 #include "Network/MessageProcessor.hpp"
 #include "Network/NetworkManager.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "Network/NetworkRole.hpp"
 #include "Network/NetworkStatus.hpp"
 #include "rlImGui.h"
@@ -51,18 +52,30 @@ void MenuScene::Unload()
 SceneSwitch MenuScene::Update(float dt)
 {
     static SceneSwitch  ss = { false };
-    static SessionState session = {
-        static_cast<ModelID>(config.track + cars.size() + environments.size()),
-        static_cast<ModelID>(config.env + cars.size()),
-        {{ 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} }}
-    };
+    static SessionState session;
 
     if (mode == MenuMode::LOBBY) {
-        auto queue = network.Update(dt); // TODO: доделать NetworkManager::SendOutgoing
+        NetworkMessage msg;
+        MsgQueue       queue;
+
+        switch (config.mode) {
+            case NetworkRole::CLIENT: msg = MessageProcessor::Serialize(static_cast<ModelID>(config.car)); break;
+            case NetworkRole::SERVER: msg = MessageProcessor::Serialize(session); break;
+            default: break;
+        }
+        queue   = network.Update(msg, dt);
         session = MessageProcessor::ApplyChanges(session, queue);
     }
 
     if (should_switch) {
+        if (config.mode == NetworkRole::OFFLINE) {
+            session = {
+                static_cast<ModelID>(config.track + cars.size() + environments.size()),
+                static_cast<ModelID>(config.env + cars.size()),
+                {{ 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} }}
+            };
+        }
+
         ss.should_switch = true;
         ss.next_scene = next_scene;
         ss.next_scene_info = session;

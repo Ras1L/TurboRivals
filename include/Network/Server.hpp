@@ -14,9 +14,9 @@ public:
 
     void DisconnectClient(uint8_t id);
 
-    void SendToClient(uint8_t id, float dt) override;
-    void SendToClients(float dt) override;
-    void SendBroadcast(float dt) override;
+    void SendToClient(const NetworkMessage& msg, uint8_t id, float dt) override;
+    void SendToClients(const NetworkMessage& msg, float dt)            override;
+    void SendBroadcast(const NetworkMessage& msg, float dt)            override;
 
     MsgQueue PollEvents() override;
 

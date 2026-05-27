@@ -51,33 +51,45 @@ NetMsg Server::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пак
     return std::nullopt;
 }
 
-void Server::SendToClient(uint8_t id, float dt) // это избранные данные клиентам передавать
+void Server::SendToClient(const NetworkMessage& msg, uint8_t id, float dt) // это избранные данные клиентам передавать
 {
+    EasyBytes bytes;
+    bytes.Write(msg.type);
+    bytes.Write(msg.payload.Data(), msg.payload.Size());
+
     auto peer = clients.find(id) -> second.get();
     accum += dt;
     if (accum >= tickRate) {
-        ENet::SendPacketToPeer(peer);
+        ENet::SendPacketToPeer(peer, bytes.Data(), bytes.Size());
     }
     accum -= tickRate;
 }
 
-void Server::SendToClients(float dt)
+void Server::SendToClients(const NetworkMessage& msg, float dt)
 {
+    EasyBytes bytes;
+    bytes.Write(msg.type);
+    bytes.Write(msg.payload.Data(), msg.payload.Size());
+
     accum += dt;
     if (accum >= tickRate) {
         std::for_each(clients.cbegin(), clients.cend(), 
-        [](auto& p){
-            ENet::SendPacketToPeer(p.second.get());
+        [&bytes](auto& p){
+            ENet::SendPacketToPeer(p.second.get(), bytes.Data(), bytes.Size());
         });
     }
     accum -= tickRate;
 }
 
-void Server::SendBroadcast(float dt) // это для всех передавать одно и то же
+void Server::SendBroadcast(const NetworkMessage& msg, float dt) // это для всех передавать одно и то же
 {
+    EasyBytes bytes;
+    bytes.Write(msg.type);
+    bytes.Write(msg.payload.Data(), msg.payload.Size());
+
     accum += dt;
     if (accum >= tickRate) {
-        ENet::SendFromHostBroadcast(server.get());
+        ENet::SendFromHostBroadcast(server.get(), bytes.Data(), bytes.Size());
     }
     accum -= tickRate;
 }

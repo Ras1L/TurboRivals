@@ -3,6 +3,7 @@
 #include "Core/GameWorldInitData.hpp"
 #include "Core/Session.hpp"
 #include "Network/NetworkManager.hpp"
+#include "Network/NetworkMessage.hpp"
 
 GameScene::GameScene(const SessionState& session, NetworkManager& network) : session(session), network(network) {}
 
@@ -30,7 +31,9 @@ SceneSwitch GameScene::Update(float dt)
         return ss;
     }
 
-    network.Update(dt);
+    NetworkMessage msg;
+    network.Update(msg, dt); // TODO: как в MenuScene сделать обмен сообщениями
+
     input = input_manager.GetInput();
     world.Update(input.vehicle, dt);
     camera.Update(input.camera, local_car -> vehicle_physics_comp.GetVehicleTransform(), dt); // Указать камере следить за конкретным игроком

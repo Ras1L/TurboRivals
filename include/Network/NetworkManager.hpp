@@ -4,6 +4,7 @@
 #include "Network/ENet.hpp"
 #include "Network/IClient.hpp"
 #include "Network/IServer.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "Network/NetworkRole.hpp"
 #include "Network/NetworkStatus.hpp"
 
@@ -14,14 +15,14 @@ public:
 
     void Connect(std::string ip);
 
-    MsgQueue Update(float dt);
+    MsgQueue Update(const NetworkMessage& msg, float dt);
     
     void          SetStatus(NetworkStatus status);
     NetworkStatus GetStatus() const;
 
 private:
     MsgQueue PollEvents();
-    void     SendOutgoing(float dt);
+    void     SendOutgoing(const NetworkMessage& msg, float dt);
 
 private:
     IClient* client = nullptr;

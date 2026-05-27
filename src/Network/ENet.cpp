@@ -181,15 +181,15 @@ namespace ENet
         return queue;
     }
     
-    void SendPacketToPeer(ENetPeer* peer)
+    void SendPacketToPeer(ENetPeer* peer, const void* data, size_t size)
     {
-        ENetPacket* packet = enet_packet_create("packet", strlen("packet") + 1, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // пакет так создаем, enet сам его почистит
+        ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // пакет так создаем, enet сам его почистит
         enet_peer_send(peer, 0, packet); // отправляем пакет клиенту по каналу channelID = 0
     }
     
-    void SendFromHostBroadcast(ENetHost* server)
+    void SendFromHostBroadcast(ENetHost* server, const void* data, size_t size)
     {
-        ENetPacket* packet = enet_packet_create("packet", strlen("packet") + 1, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // "packet" это заглушка
+        ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
         enet_host_broadcast(server, 0, packet);
     }
 

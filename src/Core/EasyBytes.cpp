@@ -10,24 +10,30 @@ EasyBytes::EasyBytes(const void* data, size_type size)
 }
 
 EasyBytes::EasyBytes(const EasyBytes& rhs) = default;
-EasyBytes EasyBytes::operator=(const EasyBytes& rhs)
-{
-    std::memcpy(buffer.data(), rhs.buffer.data() + offset, rhs.buffer.size());
-    return *this;
-}
+EasyBytes& EasyBytes::operator=(const EasyBytes& rhs) = default;
 
 EasyBytes::EasyBytes(EasyBytes&& rhs) noexcept = default;
-EasyBytes EasyBytes::operator=(EasyBytes&& rhs) noexcept
-{
-    std::memcpy(buffer.data(), rhs.buffer.data() + offset, rhs.buffer.size());
-
-    rhs.buffer.clear();
-    rhs.offset = 0;
-    
-    return *this;
-}
+EasyBytes& EasyBytes::operator=(EasyBytes&& rhs) noexcept = default;
 
 EasyBytes::~EasyBytes() noexcept = default;
+
+EasyBytes EasyBytes::Read() const
+{
+    EasyBytes bytes;
+    
+    auto new_size = buffer.size() - offset;
+    bytes.buffer.resize(new_size);
+    std::memcpy(bytes.buffer.data(), buffer.data() + offset, new_size);
+
+    return bytes;
+}
+
+void EasyBytes::Write(const void* data, size_type data_size)
+{
+    auto old_size = buffer.size();
+    buffer.resize(old_size + data_size);
+    std::memcpy(buffer.data() + old_size, data, data_size);
+}
 
 const void* EasyBytes::Data() const
 {
@@ -47,4 +53,5 @@ void EasyBytes::ResetOffset() const
 void EasyBytes::Clear()
 {
     buffer.clear();
+    offset = 0;
 }
