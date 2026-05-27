@@ -21,7 +21,6 @@ SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& que
                 session = std::get<std::remove_reference_t<decltype(session)>>(p);
                 break;
             case PacketType::ClientConfig:
-                session.players.resize(session.players.size() + 1);
                 session.players.push_back({0, std::get<packet_traits_t<PacketType::ClientConfig>>(p)}); // id и spawn должны назначить мы
                 break;
             default:

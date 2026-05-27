@@ -9,6 +9,8 @@
 #include <vector>
 #include <optional>
 
+constexpr size_t MAX_PLAYERS = 8;
+
 struct SessionPlayer {
     uint8_t id;
     ModelID car;
@@ -18,7 +20,7 @@ struct SessionPlayer {
 struct SessionState {
     ModelID track;
     ModelID env;
-    std::vector<SessionPlayer> players;
+    std::vector<SessionPlayer> players { MAX_PLAYERS };
 };
 
 struct SessionPlayerRuntime {
@@ -28,7 +30,7 @@ struct SessionPlayerRuntime {
 };
 
 struct SessionStateRuntime {
-    std::vector<SessionPlayerRuntime> players;
+    std::vector<SessionPlayerRuntime> players { MAX_PLAYERS };
 };
 
 using Session = std::optional<SessionState>;

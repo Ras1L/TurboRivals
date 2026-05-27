@@ -5,13 +5,11 @@
 #include "Core/Physics.hpp"
 #include <memory>
 
-const size_t MAX_PLAYERS_CNT = 8;
-
 void GameWorld::Init(const SessionState& session, const GameWorldInitData& init_data)
 {
     CreateTrack(init_data.track_col_mesh, session.track);
     CreateEnvironment(session.env);
-    cars.reserve(MAX_PLAYERS_CNT);
+    cars.reserve(MAX_PLAYERS);
     for (auto& player : session.players) {
         CreateCar(player.spawn.x, player.spawn.z, player.car, player.id == 0);
     }
