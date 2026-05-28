@@ -13,7 +13,7 @@ public:
     void Init(NetworkRole role);
     void Deinit();
 
-    void Connect(std::string ip);
+    bool Connect(std::string ip);
 
     MsgQueue Update(const NetworkMessage& msg, float dt);
     

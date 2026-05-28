@@ -10,7 +10,7 @@ enum class Scene {
 };
 
 struct SceneSwitch {
-    bool  should_switch;
+    bool  should_switch = false;
     Scene next_scene;
     std::variant<SessionState> next_scene_info;
 };

@@ -16,16 +16,25 @@ void Client::Destroy()
     ENet::DestroyHost(client.get());
 }
 
-void Client::ConnectToServer(std::string ip)
+bool Client::ConnectToServer(std::string ip)
 {
-    ENet::SetAddressIP(&server_addr, ip);
     if (server) { DisconnectFromServer(); }
+
+    ENet::SetAddressIP(&server_addr, ip);
     server = ENet::ConnectToPeer(client.get(), &server_addr);
+    if (!server) {
+        return false;
+    }
+    is_connected = true;
+    return is_connected;
 }
 
 void Client::DisconnectFromServer()
 {
-    ENet::DisconnectPeer(client.get(), server.get());
+    if (server && client) {
+        ENet::DisconnectPeer(client.get(), server.get());
+        is_connected = false;
+    }
 }
 
 void Client::OnConnect(ENetPeer* peer) // если клиент подключился к серверу
@@ -51,19 +60,25 @@ NetMsg Client::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пак
 
 void Client::SendToServer(const NetworkMessage& msg, float dt)
 {
-    EasyBytes bytes;
-    bytes.Write(msg.type);
-    bytes.Write(msg.payload.Data(), msg.payload.Size());
-
-    accum += dt;
-    if (accum >= tickRate)
+    if (is_connected)
     {
-        ENet::SendPacketToPeer(server.get(), bytes.Data(), bytes.Size());
+        EasyBytes bytes;
+        bytes.Write(msg.type);
+        bytes.Write(msg.payload.Data(), msg.payload.Size());
+    
+        accum += dt;
+        if (accum >= tickRate)
+        {
+            ENet::SendPacketToPeer(server.get(), bytes.Data(), bytes.Size());
+        }
+        accum -= tickRate;
     }
-    accum -= tickRate;
 }
 
 MsgQueue Client::PollEvents()
 {
-    return ENet::PollEvents(client.get(), *this, 0);
+    if (is_connected) {
+        return ENet::PollEvents(client.get(), *this, 0);
+    }
+    return MsgQueue{};
 }

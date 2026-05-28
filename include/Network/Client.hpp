@@ -11,7 +11,7 @@ public:
     void Init() override;
     void Destroy() override;
 
-    void ConnectToServer(std::string ip) override;
+    bool ConnectToServer(std::string ip) override;
     void DisconnectFromServer();
 
     void SendToServer(const NetworkMessage& msg, float dt) override;

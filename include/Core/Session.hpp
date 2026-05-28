@@ -20,7 +20,7 @@ struct SessionPlayer {
 struct SessionState {
     ModelID track;
     ModelID env;
-    std::vector<SessionPlayer> players { MAX_PLAYERS };
+    std::vector<SessionPlayer> players;
 };
 
 struct SessionPlayerRuntime {
@@ -30,7 +30,7 @@ struct SessionPlayerRuntime {
 };
 
 struct SessionStateRuntime {
-    std::vector<SessionPlayerRuntime> players { MAX_PLAYERS };
+    std::vector<SessionPlayerRuntime> players;
 };
 
 using Session = std::optional<SessionState>;

@@ -11,16 +11,14 @@ void NetworkManager::Init(NetworkRole role)
     switch (role)
     {
         case NetworkRole::OFFLINE:
-            node -> status = NetworkStatus::NONE;
             break;
 
         case NetworkRole::CLIENT:
             ENet::Initialize();
             {
-                auto p = std::make_unique<Client>();
-                node.reset(p.get());
+                node = std::make_unique<Client>();
                 node -> Init();
-                client = p.get();
+                client = dynamic_cast<Client*>(node.get());
 
                 node -> status = NetworkStatus::IDLE;
             }
@@ -29,10 +27,9 @@ void NetworkManager::Init(NetworkRole role)
         case NetworkRole::SERVER:
             ENet::Initialize();
             {
-                auto p = std::make_unique<Server>();
-                node.reset(p.get());
+                node = std::make_unique<Server>();
                 node -> Init();
-                server = p.get();
+                server = dynamic_cast<Server*>(node.get());
 
                 node -> status = NetworkStatus::IDLE;
             }
@@ -46,16 +43,19 @@ void NetworkManager::Deinit()
         node -> Destroy();
         ENet::Deinitialize();
     }
-    node -> status = NetworkStatus::NONE;
 }
 
-void NetworkManager::Connect(std::string ip)
+bool NetworkManager::Connect(std::string ip)
 {
     if (node) {
         if (client) {
-            client -> ConnectToServer(ip);
+            return client -> ConnectToServer(ip);
+        }
+        if (server) {
+            return true;
         }
     }
+    return false;
 }
 
 MsgQueue NetworkManager::Update(const NetworkMessage& msg, float dt)
@@ -82,20 +82,10 @@ void NetworkManager::SendOutgoing(const NetworkMessage& msg, float dt)
 {
     if (node) {
         if (client) {
-            if (node -> status == NetworkStatus::PLAYING) { // TODO: Отправлять разные пакеты
-                client -> SendToServer(msg, dt);
-            } else
-            if (node -> status == NetworkStatus::CONNECTED) { // Идет синхронизация
-                client -> SendToServer(msg, dt);
-            }
+            client -> SendToServer(msg, dt);
         } else
         if (server) {
-            if (node -> status == NetworkStatus::PLAYING) {
-                server -> SendToClients(msg, dt);
-            } else
-            if (node -> status == NetworkStatus::IDLE) {
-                server -> SendBroadcast(msg, dt);
-            }
+            server -> SendBroadcast(msg, dt);
         }
     }
 }

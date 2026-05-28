@@ -65,22 +65,6 @@ void Server::SendToClient(const NetworkMessage& msg, uint8_t id, float dt) // э
     accum -= tickRate;
 }
 
-void Server::SendToClients(const NetworkMessage& msg, float dt)
-{
-    EasyBytes bytes;
-    bytes.Write(msg.type);
-    bytes.Write(msg.payload.Data(), msg.payload.Size());
-
-    accum += dt;
-    if (accum >= tickRate) {
-        std::for_each(clients.cbegin(), clients.cend(), 
-        [&bytes](auto& p){
-            ENet::SendPacketToPeer(p.second.get(), bytes.Data(), bytes.Size());
-        });
-    }
-    accum -= tickRate;
-}
-
 void Server::SendBroadcast(const NetworkMessage& msg, float dt) // это для всех передавать одно и то же
 {
     EasyBytes bytes;

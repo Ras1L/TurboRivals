@@ -7,7 +7,9 @@
 class IClient {
 public:
     virtual void SendToServer(const NetworkMessage& msg, float dt) = 0;
-    virtual void ConnectToServer(std::string ip)                   = 0;
+    virtual bool ConnectToServer(std::string ip)                   = 0;
+
+    bool is_connected = false;
 };
 
 #endif

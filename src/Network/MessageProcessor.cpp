@@ -18,11 +18,13 @@ SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& que
         switch (msg.type)
         {
             case PacketType::SessionState:
-                session = std::get<std::remove_reference_t<decltype(session)>>(p);
+                session = std::get<packet_traits_t<PacketType::SessionState>>(p);
                 break;
-            case PacketType::ClientConfig:
-                session.players.push_back({0, std::get<packet_traits_t<PacketType::ClientConfig>>(p)}); // id и spawn должны назначить мы
+            case PacketType::ClientConfig: {
+                uint8_t id = 0;
+                session.players[id] = {id, std::get<packet_traits_t<PacketType::ClientConfig>>(p)}; // id и spawn должны назначить мы
                 break;
+            }
             default:
                 break;
         }

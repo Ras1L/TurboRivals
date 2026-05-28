@@ -23,21 +23,20 @@ static constexpr std::array<const char*, 1> tracks = {
     "Circuit1"
 };
 
-static constexpr std::array<const char*, 1> music = {
-    "Dangerous Ground"
-};
-
 static constexpr std::array<const char*, 1> environments = {
     "Mountains"
 };
 
-static constexpr std::array<const char*, 3> cars = {
+static constexpr std::array<const char*, 3> cars = { // если что то добавил в игру, то измени и enum и выбор в меню
     "Porsche 911 Carrera 993",
     "Dodge Charger R/T 1969",
     "Horai BX300 1996"
 };
 
-MenuScene::MenuScene(NetworkManager& network) : network(network) {}
+MenuScene::MenuScene(NetworkManager& network) : network(network)
+{
+    session.players.reserve(MAX_PLAYERS); // заранее единожды резервируем память для игроков, чтобы не было переаллокаций
+}
 
 void MenuScene::Load()
 {
@@ -51,8 +50,7 @@ void MenuScene::Unload()
 
 SceneSwitch MenuScene::Update(float dt)
 {
-    static SceneSwitch  ss = { false };
-    static SessionState session;
+    static SceneSwitch ss;
 
     if (mode == MenuMode::LOBBY) {
         NetworkMessage msg;
@@ -140,9 +138,13 @@ void MenuScene::DrawLobby() const
     ImGui::Begin(GAME_TITLE);
 
     ImGui::Text(GAME_TITLE);
-    ImGui::Text("Waiting for players...");
+    ImGui::Text("%s", log());
     if (ImGui::Button("Start")) {
         SwitchToGame();
+    }
+    if (ImGui::Button("Exit")) {
+        network.Deinit();
+        mode = MenuMode::MAIN;
     }
 
     ImGui::End();
@@ -154,7 +156,6 @@ void MenuScene::DrawOwnerMenu(GameConfig& config) const
     ImGui::Combo("Car", &config.car, cars.data(), cars.size());
     ImGui::Combo("Track", &config.track, tracks.data(), tracks.size());
     ImGui::Combo("Environment", &config.env, environments.data(), environments.size());
-    ImGui::Combo("Music", &config.music, music.data(), music.size());
 }
 
 void MenuScene::DrawClientMenu(GameConfig& config) const
@@ -165,9 +166,15 @@ void MenuScene::DrawClientMenu(GameConfig& config) const
 
 void MenuScene::SwitchToLobby() const
 {
+    log.Clear();
+    log.AddLog("Waiting for players...");
+
     mode = MenuMode::LOBBY;
     network.Init(config.mode);
-    network.Connect(config.server_ip);
+    if (!network.Connect(config.server_ip)) {
+        log.AddLog("Connection failure with");
+        log.AddLog(config.server_ip);
+    }
 }
 
 void MenuScene::SwitchToGame() const

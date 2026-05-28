@@ -57,7 +57,7 @@ namespace ENet
     void DestroyHost(ENetHost* host)
     {
         enet_address_get_host_ip(&host -> address, beauty_ip, IP_SIZE);
-        printf("INFO: ENET: Destroy host %s:%u",
+        printf("INFO: ENET: Destroy host %s:%u\n",
             beauty_ip,
             host -> address.port
         );
@@ -84,7 +84,7 @@ namespace ENet
         {
             printf("INFO: ENET: Connection to %s:%u succeed.\n",
                 beauty_ip,
-                host -> address.port
+                peer -> address.port
             );
             return peer;
         }
@@ -95,7 +95,7 @@ namespace ENet
             enet_peer_reset(peer.get());
             printf("WARNING: ENET: Connection to %s:%u failed.\n",
                 beauty_ip,
-                host -> address.port
+                peer -> address.port
             );
             return nullptr;
         }
@@ -195,6 +195,7 @@ namespace ENet
 
     void SetAddressIP(ENetAddress *address, std::string ip)
     {
+        address -> port = DEFAULT_PORT;
         if (enet_address_set_host(address, ip.c_str()) < 0) {
             fprintf(stderr, "WARNING: ENET: A failure occurred while setting ENet host address with %s.\n", ip.c_str());
         }

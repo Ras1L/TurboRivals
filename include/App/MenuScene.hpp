@@ -2,6 +2,7 @@
 #define APP_MENU_SCENE_HPP
 
 #include "App/IScene.hpp"
+#include "Core/Log.hpp"
 #include "Network/NetworkManager.hpp"
 #include "Network/NetworkRole.hpp"
 
@@ -12,7 +13,6 @@ enum class MenuMode : uint8_t {
 
 struct GameConfig {
     NetworkRole mode = NetworkRole::OFFLINE;
-    int  music = 0;
     int  track = 0;
     int  env   = 0;
     int  car   = 0;
@@ -39,9 +39,13 @@ private:
     void SwitchToGame() const;
 
 private:
-    mutable MenuMode mode = MenuMode::MAIN;
-    NetworkManager& network;
+    mutable MenuMode   mode = MenuMode::MAIN;
     mutable GameConfig config;
+
+    NetworkManager&    network;
+    SessionState       session;
+
+    mutable Log log;
 };
 
 #endif

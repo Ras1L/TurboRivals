@@ -7,6 +7,7 @@ set (MY_SOURCES
     Core/Physics.cpp
     Core/GameWorld.cpp
     Core/EasyBytes.cpp
+    Core/Log.cpp
     Core/VehiclePhysicsComponent.cpp
     Core/TrackCollisionComponent.cpp
     Render/CarCamera.cpp
