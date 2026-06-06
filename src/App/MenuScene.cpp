@@ -33,10 +33,7 @@ static constexpr std::array<const char*, 3> cars = { // если что то д�
     "Horai BX300 1996"
 };
 
-MenuScene::MenuScene(NetworkManager& network) : network(network)
-{
-    session.players.reserve(MAX_PLAYERS); // заранее единожды резервируем память для игроков, чтобы не было переаллокаций
-}
+MenuScene::MenuScene(NetworkManager& network) : network(network) {}
 
 void MenuScene::Load()
 {
@@ -52,12 +49,18 @@ SceneSwitch MenuScene::Update(float dt)
 {
     static SceneSwitch ss;
 
+    session = {
+        static_cast<ModelID>(config.track + cars.size() + environments.size()),
+        static_cast<ModelID>(config.env + cars.size()),
+        {{ true, 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} }}
+    };
+
     if (mode == MenuMode::LOBBY) {
         NetworkMessage msg;
         MsgQueue       queue;
 
         switch (config.mode) {
-            case NetworkRole::CLIENT: msg = MessageProcessor::Serialize(static_cast<ModelID>(config.car)); break;
+            case NetworkRole::CLIENT: msg = MessageProcessor::Serialize(SessionPlayerChoice{ static_cast<ModelID>(config.car) }); break;
             case NetworkRole::SERVER: msg = MessageProcessor::Serialize(session); break;
             default: break;
         }
@@ -66,14 +69,6 @@ SceneSwitch MenuScene::Update(float dt)
     }
 
     if (should_switch) {
-        if (config.mode == NetworkRole::OFFLINE) {
-            session = {
-                static_cast<ModelID>(config.track + cars.size() + environments.size()),
-                static_cast<ModelID>(config.env + cars.size()),
-                {{ 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} }}
-            };
-        }
-
         ss.should_switch = true;
         ss.next_scene = next_scene;
         ss.next_scene_info = session;

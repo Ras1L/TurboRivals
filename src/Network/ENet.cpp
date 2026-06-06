@@ -2,7 +2,6 @@
 #include "Network/INetworkNode.hpp"
 #include "Network/NetworkMessage.hpp"
 #include "enet/enet.h"
-#include "enet/types.h"
 
 #include <cstdlib>
 #include <cstdio>
@@ -69,11 +68,11 @@ namespace ENet
         return Host(enet_host_create(NULL, 1, 2, 0, 0)); // 1 выходящее соединение
     }
     
-    Peer ConnectToPeer(ENetHost* host, ENetAddress* address)
+    ENetPeer* ConnectToPeer(ENetHost* host, ENetAddress* address)
     {
         ENetEvent event;
     
-        Peer peer(enet_host_connect(host, address, 2, 0)); // 2 канала: 0 и 1
+        ENetPeer* peer = enet_host_connect(host, address, 2, 0); // 2 канала: 0 и 1
         if (!peer) {
             fprintf(stderr, "ERROR: ENET: No available peers for initiating an ENet connection.\n");
             return nullptr;
@@ -92,7 +91,7 @@ namespace ENet
         {
             // если 5 секунд в ожидании подключения прошли или соединение оборвалось
             // если особых событий или ошибок нет, то лучше перезапустить попытку соединиться
-            enet_peer_reset(peer.get());
+            enet_peer_reset(peer);
             printf("WARNING: ENET: Connection to %s:%u failed.\n",
                 beauty_ip,
                 peer -> address.port
@@ -126,13 +125,13 @@ namespace ENet
         enet_peer_reset(peer); // Принудительно сбрасываем соединение, если за 3 секунды не получилось это сделать
     }
     
-    MsgQueue PollEvents(ENetHost* host, INetworkNode& listener, enet_uint32 ms)
+    MsgQueue PollEvents(ENetHost* host, INetworkNode& listener)
     {
         ENetEvent event;
         NetMsg    msg;
         MsgQueue  queue;
     
-        while (enet_host_service(host, &event, ms) > 0) { // 0 в аргументах функции - ожидание события в мс, для игрового цикла лучше без задержек
+        while (enet_host_service(host, &event, 0) > 0) { // 0 в аргументах функции - ожидание события в мс, для игрового цикла лучше без задержек
             switch (event.type)
             {
                 case ENET_EVENT_TYPE_CONNECT:
@@ -183,6 +182,10 @@ namespace ENet
     
     void SendPacketToPeer(ENetPeer* peer, const void* data, size_t size)
     {
+        if (!peer) {
+            fprintf(stderr, "ERROR: ENET: Sending packet to invalid peer. There is no connection.\n");
+            return;
+        }
         ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // пакет так создаем, enet сам его почистит
         enet_peer_send(peer, 0, packet); // отправляем пакет клиенту по каналу channelID = 0
     }

@@ -3,10 +3,13 @@
 
 #include "Core/EasyBytes.hpp"
 #include "PacketType.hpp"
+
+#include <enet/enet.h>
 #include <optional>
 #include <queue>
 
 struct NetworkMessage {
+    ENetPeer*  peer;
     PacketType type;
     EasyBytes  payload;
 };

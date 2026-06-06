@@ -2,7 +2,6 @@
 #define NETWORK_PACKET_TYPE_HPP
 
 #include "Core/Input.hpp"
-#include "Core/ModelID.hpp"
 #include "Core/Session.hpp"
 #include <cstdint>
 #include <variant>
@@ -23,7 +22,7 @@ using PacketVariant = std::variant
     VehicleInput,
     SessionStateRuntime,
 
-    ModelID,
+    SessionPlayerChoice,
     SessionState
 >;
 
@@ -37,7 +36,7 @@ template <> struct packet_traits<PacketType::SessionStateRuntime> {
     using type = SessionStateRuntime;
 };
 template <> struct packet_traits<PacketType::ClientConfig> {
-    using type = ModelID;
+    using type = SessionPlayerChoice;
 };
 template <> struct packet_traits<PacketType::SessionState> {
     using type = SessionState;

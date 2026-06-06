@@ -11,7 +11,9 @@ void GameWorld::Init(const SessionState& session, const GameWorldInitData& init_
     CreateEnvironment(session.env);
     cars.reserve(MAX_PLAYERS);
     for (auto& player : session.players) {
-        CreateCar(player.spawn.x, player.spawn.z, player.car, player.id == 0);
+        if (player.is_active) {
+            CreateCar(player.spawn.x, player.spawn.z, player.car, player.id == 0); // TODO: доделать is_local логику
+        }
     }
 }
 

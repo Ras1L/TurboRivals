@@ -11,16 +11,26 @@
 
 constexpr size_t MAX_PLAYERS = 8;
 
-struct SessionPlayer {
+struct SessionPlayer { // все об игроке в лобби
+    bool is_active = false;
     uint8_t id;
     ModelID car;
+    Vector3 spawn;
+};
+
+struct SessionPlayerChoice { // что клиент может контролировать
+    ModelID car;
+};
+
+struct SessionPlayerConnection { // что сервер контролирует
+    uint8_t id;
     Vector3 spawn;
 };
 
 struct SessionState {
     ModelID track;
     ModelID env;
-    std::vector<SessionPlayer> players;
+    std::vector<SessionPlayer> players{ MAX_PLAYERS };
 };
 
 struct SessionPlayerRuntime {

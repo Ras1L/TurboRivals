@@ -13,6 +13,9 @@ void Client::Init()
 
 void Client::Destroy()
 {
+    if (is_connected) {
+        DisconnectFromServer();
+    }
     ENet::DestroyHost(client.get());
 }
 
@@ -32,7 +35,7 @@ bool Client::ConnectToServer(std::string ip)
 void Client::DisconnectFromServer()
 {
     if (server && client) {
-        ENet::DisconnectPeer(client.get(), server.get());
+        ENet::DisconnectPeer(client.get(), server);
         is_connected = false;
     }
 }
@@ -51,9 +54,9 @@ void Client::OnDisconnect(ENetPeer* peer) // если отсоединили и�
 
 NetMsg Client::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пакеты разные приходят
 {
-    if (peer == server.get()) // мало ли кто пришел, может мы его не знаем
+    if (peer == server) // мало ли кто пришел, может мы его не знаем
     {
-        return MessageProcessor::Serialize(packet);
+        return MessageProcessor::Serialize(peer, packet);
     }
     return std::nullopt;
 }
@@ -67,18 +70,17 @@ void Client::SendToServer(const NetworkMessage& msg, float dt)
         bytes.Write(msg.payload.Data(), msg.payload.Size());
     
         accum += dt;
-        if (accum >= tickRate)
-        {
-            ENet::SendPacketToPeer(server.get(), bytes.Data(), bytes.Size());
+        if (accum >= tickRate) {
+            ENet::SendPacketToPeer(server, bytes.Data(), bytes.Size());
+            accum -= tickRate;
         }
-        accum -= tickRate;
     }
 }
 
 MsgQueue Client::PollEvents()
 {
     if (is_connected) {
-        return ENet::PollEvents(client.get(), *this, 0);
+        return ENet::PollEvents(client.get(), *this);
     }
     return MsgQueue{};
 }

@@ -11,10 +11,10 @@ public:
     static SessionState        ApplyChanges(SessionState& session, MsgQueue& queue);
     static SessionStateRuntime ApplyChanges(SessionStateRuntime& session, MsgQueue& queue);
 
-    static NetMsg         Serialize(ENetPacket* packet);
+    static NetMsg         Serialize(ENetPeer* peer, ENetPacket* packet);
     static NetworkMessage Serialize(const PacketVariant& packet);
 
-    static PacketVariant  Deserialize(const NetworkMessage& msg, bool);
+    static PacketVariant  Deserialize(const NetworkMessage& msg);
 };
 
 #endif

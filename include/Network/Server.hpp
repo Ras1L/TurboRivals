@@ -1,10 +1,10 @@
 #ifndef NETWORK_SERVER_HPP
 #define NETWORK_SERVER_HPP
 
+#include "Core/PlayerConnectionDataManager.hpp"
 #include "Network/ENet.hpp"
 #include "Network/IServer.hpp"
 #include "Network/NetworkMessage.hpp"
-#include "enet/enet.h"
 #include <unordered_map>
 
 class Server final : public INetworkNode, public IServer {
@@ -27,10 +27,10 @@ private:
 private:
     ENet::Addr address;
     ENet::Host server;
-    std::unordered_map<uint8_t, ENet::Peer> clients;
+    std::unordered_map<ENetPeer*, SessionPlayerConnection> clients; // не оборачиваю в std::unique_ptr, это не вектор с переаллокациями
 
-    uint8_t client_ids = 0;
-    float accum        = 0.f;
+    PlayerConnectionDataManager connection_data_manager;
+    float accum = 0.f;
 };
 
 #endif

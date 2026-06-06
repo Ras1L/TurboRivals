@@ -26,7 +26,7 @@ private:
 private:
     ENet::Addr server_addr;
     ENet::Host client = nullptr;
-    ENet::Peer server = nullptr; // сервер к которому подключаемся, для нас он пир
+    ENetPeer*  server = nullptr; // сервер к которому подключаемся, для нас он пир
 
     float accum = 0.f; // переодическая отправка вне зависимости от FPS
 };

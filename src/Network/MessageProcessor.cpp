@@ -1,7 +1,6 @@
 #include "Network/MessageProcessor.hpp"
 #include "Core/EasyBytes.hpp"
 #include "Core/Input.hpp"
-#include "Core/ModelID.hpp"
 #include "Core/Session.hpp"
 #include "Network/NetworkMessage.hpp"
 #include "Network/PacketType.hpp"
@@ -14,20 +13,30 @@ SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& que
     while (!queue.empty())
     {
         auto msg = queue.front();
-        auto p = Deserialize(msg, true);
+        auto p = Deserialize(msg);
         switch (msg.type)
         {
             case PacketType::SessionState:
                 session = std::get<packet_traits_t<PacketType::SessionState>>(p);
                 break;
             case PacketType::ClientConfig: {
-                uint8_t id = 0;
-                session.players[id] = {id, std::get<packet_traits_t<PacketType::ClientConfig>>(p)}; // id и spawn должны назначить мы
+                auto data = msg.peer -> data;
+                if (!data) {
+                    fprintf(stderr, "WARNING: ENET: MessageProcessor: Packet received from dead peer\n");
+                }
+                auto peer_data = static_cast<SessionPlayerConnection*>(data);
+
+                auto id    = peer_data -> id;
+                auto car   = std::get<packet_traits_t<PacketType::ClientConfig>>(p).car;
+                auto spawn = peer_data -> spawn;
+                
+                session.players[id] = {true, id, car, spawn};
                 break;
             }
             default:
                 break;
         }
+        queue.pop();
     }
     return session;
 }
@@ -37,20 +46,21 @@ SessionStateRuntime MessageProcessor::ApplyChanges(SessionStateRuntime& session,
     while (!queue.empty())
     {
         auto msg = queue.front();
-        auto p = Deserialize(msg, true);
+        auto p = Deserialize(msg);
         switch (msg.type)
         {
             case PacketType::SessionStateRuntime:
-                session = std::get<std::remove_reference_t<decltype(session)>>(p);
+                session = std::get<packet_traits_t<PacketType::SessionStateRuntime>>(p);
                 break;
             case PacketType::VehicleInput:
                 for (auto& player : session.players) {
-                    player.input = std::get<decltype(player.input)>(p);
+                    player.input = std::get<packet_traits_t<PacketType::VehicleInput>>(p);
                 }
                 break;
             default:
                 break;
         }
+        queue.pop();
     }
     return session;
 }
@@ -61,21 +71,24 @@ NetworkMessage MessageProcessor::Serialize(const PacketVariant& packet) // вм�
 
     std::visit(overloaded {
         [&msg](const VehicleInput& input){
+            msg.type = PacketType::VehicleInput;
             msg.payload.Write(input);
         },
         [&msg](const SessionStateRuntime& session){
+            msg.type = PacketType::SessionStateRuntime;
             msg.payload.Write(session.players.size());
             for (auto& player : session.players) {
                 msg.payload.Write(player);
             }
         },
-        [&msg](const ModelID& car){
+        [&msg](const SessionPlayerChoice& car){
+            msg.type = PacketType::ClientConfig;
             msg.payload.Write(car);
         },
         [&msg](const SessionState& session){
+            msg.type = PacketType::SessionState;
             msg.payload.Write(session.track);
             msg.payload.Write(session.env);
-            msg.payload.Write(session.players.size());
             for (auto& player : session.players) {
                 msg.payload.Write(player);
             };
@@ -85,7 +98,7 @@ NetworkMessage MessageProcessor::Serialize(const PacketVariant& packet) // вм�
     return msg;
 }
 
-PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg, bool) // вместо кучи перегрузок я ввел std::variant
+PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg) // вместо кучи перегрузок я ввел std::variant
 {
     switch (msg.type)
     {
@@ -107,6 +120,7 @@ PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg, bool) // 
 
         case PacketType::ClientConfig: {
             auto config = msg.payload.Read<packet_traits_t<PacketType::ClientConfig>>();
+
             msg.payload.ResetOffset();
             return PacketVariant{ config };
         }
@@ -115,8 +129,6 @@ PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg, bool) // 
             SessionState session;
             session.track = msg.payload.Read<decltype(session.track)>();
             session.env   = msg.payload.Read<decltype(session.env)>();
-
-            session.players.resize(msg.payload.Read<decltype(session.players.size())>()); // Write должен быть таким же по порядку
             for (auto& player : session.players) {
                 player = msg.payload.Read<std::remove_reference_t<decltype(player)>>();
             }
@@ -131,16 +143,17 @@ PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg, bool) // 
     return PacketVariant{};
 }
 
-NetMsg MessageProcessor::Serialize(ENetPacket* packet)
+NetMsg MessageProcessor::Serialize(ENetPeer* peer, ENetPacket* packet)
 {
-    NetMsg msg;
-    if (packet -> data != NULL && packet -> dataLength > 0) {
+    NetworkMessage msg;
+    if (packet -> data != nullptr && packet -> dataLength > 0) {
         EasyBytes data(packet -> data, packet -> dataLength);
-        msg -> type    = data.Read<decltype(msg -> type)>();
-        msg -> payload = data.Read();
+        msg.peer    = peer;
+        msg.type    = data.Read<decltype(msg.type)>();
+        msg.payload = data.Read();
         data.ResetOffset();
     
-        return msg;
+        return NetMsg{ msg };
     }
-    return std::nullopt;
+    return NetMsg{ std::nullopt };
 }

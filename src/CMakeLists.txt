@@ -8,6 +8,7 @@ set (MY_SOURCES
     Core/GameWorld.cpp
     Core/EasyBytes.cpp
     Core/Log.cpp
+    Core/PlayerConnectionDataManager.cpp
     Core/VehiclePhysicsComponent.cpp
     Core/TrackCollisionComponent.cpp
     Render/CarCamera.cpp
