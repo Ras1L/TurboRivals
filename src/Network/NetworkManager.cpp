@@ -11,28 +11,31 @@ void NetworkManager::Init(NetworkRole role)
     switch (role)
     {
         case NetworkRole::OFFLINE:
+            role = NetworkRole::OFFLINE;
             break;
 
         case NetworkRole::CLIENT:
+            role = NetworkRole::CLIENT;
             ENet::Initialize();
-            {
-                node = std::make_unique<Client>();
-                node -> Init();
-                client = dynamic_cast<Client*>(node.get());
+            
+            node = std::make_unique<Client>();
+            node -> Init();
+            client = dynamic_cast<Client*>(node.get());
 
-                node -> status = NetworkStatus::IDLE;
-            }
+            node -> status = NetworkStatus::IDLE;
+            
             break;
 
         case NetworkRole::SERVER:
+            role = NetworkRole::SERVER;
             ENet::Initialize();
-            {
-                node = std::make_unique<Server>();
-                node -> Init();
-                server = dynamic_cast<Server*>(node.get());
+            
+            node = std::make_unique<Server>();
+            node -> Init();
+            server = dynamic_cast<Server*>(node.get());
 
-                node -> status = NetworkStatus::IDLE;
-            }
+            node -> status = NetworkStatus::IDLE;
+            
             break;
     }
 }
@@ -103,4 +106,9 @@ NetworkStatus NetworkManager::GetStatus() const
         return node -> status;
     }
     return NetworkStatus::NONE;
+}
+
+NetworkRole NetworkManager::GetRole() const
+{
+    return role;
 }

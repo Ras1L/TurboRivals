@@ -4,7 +4,6 @@
 #include "Core/GameWorldInitData.hpp"
 #include "Core/Environment.hpp"
 #include "Core/Physics.hpp"
-#include "Core/Input.hpp"
 #include "Core/Car.hpp"
 #include "Core/Track.hpp"
 #include "Core/Session.hpp"
@@ -15,14 +14,16 @@
 class GameWorld {
 public:
     void Init(const SessionState& session, const GameWorldInitData& init_data);
-    void Update(const VehicleInput& input, float dt);
+    void Update(const SessionStateRuntime& session, float dt);
+    void ApplyShapshot(const SessionStateRuntime& session);
 
     std::vector<const Car*> GetCars()        const;
     const Track*            GetTrack()       const;
     const Environment*      GetEnvironment() const;
 
-    void CreateCar(float x, float z, ModelID model_id, bool is_local); // Car* - наблюдатель, GameWorld владелец Cars
-    void DestroyCar(size_t idx);
+    void CreateCars(std::span<const SessionPlayer> players, id_type local_car_id);
+    void CreateCar(Vector3 pos, ModelID model_id, bool is_local); // Car* - наблюдатель, GameWorld владелец Cars
+    void DestroyCar(uint8_t id);
 
     void CreateTrack(std::span<const CollisionMeshData> mesh_data, ModelID id);
     void DestroyTrack();

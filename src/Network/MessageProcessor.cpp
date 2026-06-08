@@ -16,9 +16,13 @@ SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& que
         auto p = Deserialize(msg);
         switch (msg.type)
         {
-            case PacketType::SessionState:
-                session = std::get<packet_traits_t<PacketType::SessionState>>(p);
+            case PacketType::SessionState: {
+                auto new_session = std::get<packet_traits_t<PacketType::SessionState>>(p); // все возьму от сервера кроме my_id
+                session.track   = new_session.track;
+                session.env     = new_session.env;
+                session.players = std::move(new_session.players);
                 break;
+            }
             case PacketType::ClientConfig: {
                 auto data = msg.peer -> data;
                 if (!data) {
@@ -33,6 +37,9 @@ SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& que
                 session.players[id] = {true, id, car, spawn};
                 break;
             }
+            case PacketType::PlayerID:
+                session.my_id = std::get<packet_traits_t<PacketType::PlayerID>>(p);
+                break;
             default:
                 break;
         }
@@ -52,11 +59,16 @@ SessionStateRuntime MessageProcessor::ApplyChanges(SessionStateRuntime& session,
             case PacketType::SessionStateRuntime:
                 session = std::get<packet_traits_t<PacketType::SessionStateRuntime>>(p);
                 break;
-            case PacketType::VehicleInput:
-                for (auto& player : session.players) {
-                    player.input = std::get<packet_traits_t<PacketType::VehicleInput>>(p);
+            case PacketType::VehicleInput: {
+                auto data = msg.peer -> data;
+                if (!data) {
+                    fprintf(stderr, "WARNING: ENET: MessageProcessor: Packet received from dead peer\n");
                 }
+                auto id = static_cast<SessionPlayerConnection*>(data) -> id;
+
+                session.players[id].input = std::get<packet_traits_t<PacketType::VehicleInput>>(p);
                 break;
+            }
             default:
                 break;
         }
@@ -93,6 +105,10 @@ NetworkMessage MessageProcessor::Serialize(const PacketVariant& packet) // вм�
                 msg.payload.Write(player);
             };
         },
+        [&msg](const id_type id){
+            msg.type = PacketType::PlayerID;
+            msg.payload.Write(id);
+        }
     }, packet);
 
     return msg;
@@ -135,6 +151,14 @@ PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg) // вме
             msg.payload.ResetOffset();
 
             return PacketVariant{ session };
+        }
+
+        case PacketType::PlayerID: {
+            id_type id;
+            id = msg.payload.Read<packet_traits_t<PacketType::PlayerID>>();
+            msg.payload.ResetOffset();
+
+            return PacketVariant{ id };
         }
 
         case PacketType::None:

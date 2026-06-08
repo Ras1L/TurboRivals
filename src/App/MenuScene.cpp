@@ -49,13 +49,15 @@ SceneSwitch MenuScene::Update(float dt)
 {
     static SceneSwitch ss;
 
-    session = {
-        static_cast<ModelID>(config.track + cars.size() + environments.size()),
-        static_cast<ModelID>(config.env + cars.size()),
-        {{ true, 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} }}
-    };
-
-    if (mode == MenuMode::LOBBY) {
+    if (mode == MenuMode::MAIN && config.mode != NetworkRole::CLIENT) {
+        session = {
+            0,
+            static_cast<ModelID>(config.track + cars.size() + environments.size()),
+            static_cast<ModelID>(config.env + cars.size()),
+            {{ true, 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} }}
+        };
+    }
+    else if (mode == MenuMode::LOBBY) {
         NetworkMessage msg;
         MsgQueue       queue;
 

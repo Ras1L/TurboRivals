@@ -12,9 +12,10 @@ public:
     void Init() override;
     void Destroy() override;
 
-    void DisconnectClient(uint8_t id);
+    void DisconnectClient(id_type id); // нужен второй std::unordered_map<id, ENetPeer> для быстрого выполнения
 
-    void SendToClient(const NetworkMessage& msg, uint8_t id, float dt) override;
+    void SendToClient(const NetworkMessage& msg, id_type id, float dt) override;
+    void SendToClient(const NetworkMessage& msg, ENetPeer* peer, float dt);
     void SendBroadcast(const NetworkMessage& msg, float dt)            override;
 
     MsgQueue PollEvents() override;
@@ -25,12 +26,13 @@ private:
     NetMsg OnReceive(ENetPeer* peer, ENetPacket* packet) override;
 
 private:
+    float accum = 0.f;
+    PlayerConnectionDataManager connection_data_manager;
+
     ENet::Addr address;
     ENet::Host server;
     std::unordered_map<ENetPeer*, SessionPlayerConnection> clients; // не оборачиваю в std::unique_ptr, это не вектор с переаллокациями
-
-    PlayerConnectionDataManager connection_data_manager;
-    float accum = 0.f;
+    std::unordered_map<uint8_t, ENetPeer*> fast_search; // второй std::unordered_map<id, ENetPeer> для быстрого выполнения
 };
 
 #endif

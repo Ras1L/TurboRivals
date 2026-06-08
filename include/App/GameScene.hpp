@@ -24,10 +24,11 @@ public:
     void Unload() override;
 
 private:
-    SessionState    session;
+    SessionState        session;
+    SessionStateRuntime session_runtime;
 
     InputManager    input_manager;
-    PlayerInput     input;
+    PlayerInput     my_input;
     CarCamera       camera;
     NetworkManager& network;
     ResourceManager resources;

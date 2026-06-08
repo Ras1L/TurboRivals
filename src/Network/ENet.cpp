@@ -186,8 +186,8 @@ namespace ENet
             fprintf(stderr, "ERROR: ENET: Sending packet to invalid peer. There is no connection.\n");
             return;
         }
-        ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT); // пакет так создаем, enet сам его почистит
-        enet_peer_send(peer, 0, packet); // отправляем пакет клиенту по каналу channelID = 0
+        ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE); // пакет так создаю, enet сам его почистит
+        enet_peer_send(peer, 0, packet); // отправляю пакет клиенту по каналу channelID = 0
     }
     
     void SendFromHostBroadcast(ENetHost* server, const void* data, size_t size)

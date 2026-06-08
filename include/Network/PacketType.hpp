@@ -15,6 +15,8 @@ enum class PacketType : uint8_t
 
     ClientConfig,
     SessionState,
+
+    PlayerID
 };
 
 using PacketVariant = std::variant
@@ -23,7 +25,9 @@ using PacketVariant = std::variant
     SessionStateRuntime,
 
     SessionPlayerChoice,
-    SessionState
+    SessionState,
+
+    id_type
 >;
 
 template <PacketType P>
@@ -40,6 +44,9 @@ template <> struct packet_traits<PacketType::ClientConfig> {
 };
 template <> struct packet_traits<PacketType::SessionState> {
     using type = SessionState;
+};
+template <> struct packet_traits<PacketType::PlayerID> {
+    using type = id_type;
 };
 
 template <PacketType P>

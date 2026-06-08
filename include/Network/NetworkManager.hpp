@@ -19,6 +19,7 @@ public:
     
     void          SetStatus(NetworkStatus status);
     NetworkStatus GetStatus() const;
+    NetworkRole   GetRole() const;
 
 private:
     MsgQueue PollEvents();
@@ -28,7 +29,8 @@ private:
     IClient* client = nullptr;
     IServer* server = nullptr;
 
-    ENet::Node node = nullptr;
+    ENet::Node  node = nullptr;
+    NetworkRole role;
 };
 
 #endif

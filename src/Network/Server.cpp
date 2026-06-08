@@ -1,5 +1,4 @@
 #include "Network/Server.hpp"
-#include "Core/Session.hpp"
 #include "Network/ENet.hpp"
 #include "Network/MessageProcessor.hpp"
 #include "Network/NetworkMessage.hpp"
@@ -14,7 +13,7 @@ void Server::Destroy()
     ENet::DestroyHost(server.get());
 }
 
-void Server::DisconnectClient(uint8_t id)
+void Server::DisconnectClient(id_type id)
 {
     for (auto& client : clients) {
         if (client.second.id == id) {
@@ -31,6 +30,8 @@ void Server::OnConnect(ENetPeer* peer) // Здесь сервер не меня�
         auto player_data = SessionPlayerConnection{ p.second.id, p.second.spawn };
         peer -> data = new SessionPlayerConnection{ player_data }; // не бросайте в меня камни, это нормально если работаешь с Си API (ENet такой и есть)
         clients.emplace(peer, player_data);
+
+        SendToClient(MessageProcessor::Serialize(player_data.id), peer, tickRate); // tickRate если передать, то 100% отправится
     }
 }
 
@@ -54,20 +55,28 @@ NetMsg Server::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пак
     return NetMsg{ std::nullopt };
 }
 
-void Server::SendToClient(const NetworkMessage& msg, uint8_t id, float dt) // это избранные данные клиентам передавать
+void Server::SendToClient(const NetworkMessage& msg, id_type id, float dt) // это избранные данные клиентам передавать
 {
     EasyBytes bytes;
     bytes.Write(msg.type);
     bytes.Write(msg.payload.Data(), msg.payload.Size());
 
-    ENetPeer* peer = nullptr;
-    for (auto& client : clients) {
-        if (client.second.id == id) {
-            peer = client.first;
-            break;
-        }
-    }
+    auto it = fast_search.find(id);
+    auto peer = it -> second;
     
+    accum += dt;
+    if (accum >= tickRate) {
+        ENet::SendPacketToPeer(peer, bytes.Data(), bytes.Size());
+        accum -= tickRate;
+    }
+}
+
+void Server::SendToClient(const NetworkMessage& msg, ENetPeer* peer, float dt)
+{
+    EasyBytes bytes;
+    bytes.Write(msg.type);
+    bytes.Write(msg.payload.Data(), msg.payload.Size());
+
     accum += dt;
     if (accum >= tickRate) {
         ENet::SendPacketToPeer(peer, bytes.Data(), bytes.Size());
