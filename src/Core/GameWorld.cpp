@@ -4,7 +4,6 @@
 #include "Core/Physics.hpp"
 #include "Core/Session.hpp"
 #include "raylib.h"
-#include <memory>
 
 void GameWorld::Init(const SessionState& session, const GameWorldInitData& init_data)
 {
@@ -13,59 +12,55 @@ void GameWorld::Init(const SessionState& session, const GameWorldInitData& init_
     CreateCars(session.players, session.my_id);
 }
 
+void GameWorld::ApplyShapshot(const SessionStateRuntime& session) // TODO
+{
+    for (auto& player : session.players) {
+        if (player.info.is_active) {
+            auto& car = cars[player.info.id];
+            car.vehicle_physics_comp.SetVehicleTransform(player.trans);
+            car.model_comp.transform = car.vehicle_physics_comp.GetVehicleTransform();
+        }
+    }
+}
+
 void GameWorld::Update(const SessionStateRuntime& session, float dt) // TODO: здесь world из network должен получить пакеты об инпуте остальных игроков
 {
     for (auto& player : session.players) {
-        auto id = player.info.id;
-        if (session.my_id == id)
-        {
-            auto my_car = local_car.get();
-            my_car -> vehicle_physics_comp.Update(player.input, dt);
-            my_car -> model_comp.transform = my_car -> vehicle_physics_comp.GetVehicleTransform(); // TODO: стоит ли вообще
-        }
-        else
-        {
-            auto car = cars[id].get();
-            car -> vehicle_physics_comp.Update(player.input, dt);
-            car -> model_comp.transform = car -> vehicle_physics_comp.GetVehicleTransform();
+        if (player.info.is_active) {
+            auto& car = cars[player.info.id];
+            car.vehicle_physics_comp.Update(player.input, dt);
+            car.model_comp.transform = car.vehicle_physics_comp.GetVehicleTransform();
         }
     }
     physic_world.Update(dt);
 }
 
-void GameWorld::ApplyShapshot(const SessionStateRuntime& session) // TODO
-{
-
-}
-
 void GameWorld::CreateCars(std::span<const SessionPlayer> players, id_type local_car_id)
 {
-    cars.reserve(MAX_PLAYERS);
     for (auto& player : players) {
         if (player.is_active) {
-            CreateCar(player.spawn, player.car, player.id == local_car_id);
+            CreateCar(player, local_car_id);
         }
     }
 }
 
-void GameWorld::CreateCar(Vector3 pos, ModelID model_id, bool is_local)
+void GameWorld::CreateCar(const SessionPlayer& player, id_type local_car_id)
 {
-    auto car = std::make_unique<Car>();
+    Car car;
+    car.model_comp.mid = player.car;
+    car.model_comp.transform.pos = player.spawn;
+    car.vehicle_physics_comp.Init(car.model_comp.transform.pos, physic_world);
 
-    car->model_comp.mid = model_id;
-    car->model_comp.transform.pos = pos;
-    car->vehicle_physics_comp.Init(car->model_comp.transform.pos, physic_world);
+    cars[player.id] = std::move(car);
 
-    if (is_local) { // TODO: сравнить id с id игрока
-        local_car = std::move(car);
-    } else {
-        cars.push_back(std::move(car));
+    if (local_car_id == player.id) {
+        local_car = &cars[player.id];
     }
 }
 
 void GameWorld::DestroyCar(id_type id)
 {
-    cars[id]->vehicle_physics_comp.Destroy(physic_world);
+    cars[id].vehicle_physics_comp.Destroy(physic_world);
 }
 
 void GameWorld::CreateTrack(std::span<const CollisionMeshData> mesh_data, ModelID mid)
@@ -89,11 +84,18 @@ std::vector<const Car*> GameWorld::GetCars() const
     std::vector<const Car*> all_cars;
     all_cars.reserve(MAX_PLAYERS);
 
-    all_cars.push_back(local_car.get());
-    for (auto& car : cars) {
-        all_cars.push_back(car.get());
+    for (id_type i = 0; i < MAX_PLAYERS; ++i) {
+        auto& car = cars[i];
+        if (car.vehicle_physics_comp.IsValid()) {
+            all_cars.push_back(&car);
+        }
     }
     return all_cars;
+}
+
+const Car* GameWorld::GetLocalCar() const
+{
+    return local_car;
 }
 
 const Track* GameWorld::GetTrack() const {

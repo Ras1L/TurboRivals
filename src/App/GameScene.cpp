@@ -16,21 +16,23 @@ void GameScene::Load()
     init_data.track_col_mesh = resources.GetCollisionMeshDataByID(session.track);
 
     for (id_type i = 0; i < MAX_PLAYERS; ++i) {
-        auto info                  = session.players[i];
-        auto runtime_player = session_runtime.players[i];
+        auto& info                  = session.players[i];
+        auto& runtime_player = session_runtime.players[i];
 
-        runtime_player.info = info;
-        runtime_player.pos  = info.spawn; // pos - динамическая переменная, а spawn - один и тот же
+        runtime_player.info       = info;
+        runtime_player.trans.pos  = info.spawn; // pos - динамическая переменная, а spawn - один и тот же
     }
     session_runtime.my_id = session.my_id;
 
     world.Init(session, init_data);
     cars      = world.GetCars();
-    local_car = cars.front();
+    local_car = world.GetLocalCar();
     track     = world.GetTrack();
     env       = world.GetEnvironment();
 
     sound.Init();
+
+    my_role = network.GetRole();
 }
 
 SceneSwitch GameScene::Update(float dt)
@@ -42,21 +44,25 @@ SceneSwitch GameScene::Update(float dt)
         return ss;
     }
 
-    NetworkMessage msg;
-    MsgQueue       queue;
-
     my_input = input_manager.GetInput();
 
-    switch (network.GetRole()) {
-        case NetworkRole::CLIENT: msg = MessageProcessor::Serialize(my_input.vehicle); break;
-        case NetworkRole::SERVER: msg = MessageProcessor::Serialize(session_runtime); break;
-        default: break;
+    if (my_role != NetworkRole::CLIENT) {
+        session_runtime.players[session_runtime.my_id].input = my_input.vehicle;
     }
 
-    queue = network.Update(msg, dt);
-    MessageProcessor::ApplyChanges(session_runtime, queue);
+    if (my_role != NetworkRole::OFFLINE) {
+        NetworkMessage msg;
+        MsgQueue       queue;
+        switch (network.GetRole()) {
+            case NetworkRole::CLIENT: msg = MessageProcessor::Serialize(my_input.vehicle); break;
+            case NetworkRole::SERVER: msg = MessageProcessor::Serialize(session_runtime); break;
+            default: break;
+        }
+        queue = network.Update(msg, dt);
+        MessageProcessor::ApplyChanges(session_runtime, queue);
+    }
 
-    if (network.GetRole() == NetworkRole::CLIENT) {
+    if (my_role == NetworkRole::CLIENT) {
         world.ApplyShapshot(session_runtime);
     }
     world.Update(session_runtime, dt);

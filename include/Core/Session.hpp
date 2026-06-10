@@ -3,6 +3,7 @@
 
 #include "Core/Input.hpp"
 #include "Core/ModelID.hpp"
+#include "Core/Transform3D.hpp"
 #include "raylib.h"
 
 #include <cstdint>
@@ -38,7 +39,7 @@ struct SessionState {
 
 struct SessionPlayerRuntime {
     SessionPlayer info;
-    Vector3       pos;
+    Transform3D   trans = Transform3D::Identity();
     VehicleInput  input;
 };
 

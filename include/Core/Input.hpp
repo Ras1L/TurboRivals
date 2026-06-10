@@ -12,7 +12,7 @@ struct VehicleInput {
 };
 
 struct CameraInput {
-    bool cameraLookBack;
+    bool cameraLookBack = false;
     char cameraRight;
 };
 

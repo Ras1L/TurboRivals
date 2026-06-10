@@ -40,6 +40,8 @@ private:
     std::vector<const Car*> cars;
     const Track*            track;
     const Environment*      env;
+
+    NetworkRole my_role;
 };
 
 #endif

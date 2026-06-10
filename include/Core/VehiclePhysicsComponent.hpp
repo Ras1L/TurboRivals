@@ -19,6 +19,9 @@ public:
 
     void        Update(const VehicleInput& input, float dt);
     Transform3D GetVehicleTransform() const;
+    void        SetVehicleTransform(Transform3D tr);
+
+    bool IsValid() const;
 
 private:
     std::unique_ptr<btCollisionShape>     chassisShape;
@@ -36,6 +39,8 @@ private:
     float engine     = 0.f;
     float steering   = 0.f;
     float brakeForce = 0.f;
+
+    bool is_valid = false;
 };
 
 #endif

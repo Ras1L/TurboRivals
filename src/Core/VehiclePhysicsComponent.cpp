@@ -72,6 +72,8 @@ void VehiclePhysicsComponent::Init(Vector3 pos, Physics& physic_world)
         vehicle->getWheelInfo(i).m_maxSuspensionTravelCm = 80.f;
         vehicle->getWheelInfo(i).m_maxSuspensionForce = 40000.f;
     }
+
+    is_valid = true;
 }
 
 void VehiclePhysicsComponent::Update(const VehicleInput& input, float dt)
@@ -144,7 +146,21 @@ Transform3D VehiclePhysicsComponent::GetVehicleTransform() const
     return tr;
 }
 
+void VehiclePhysicsComponent::SetVehicleTransform(Transform3D tr)
+{
+    btTransform t;
+    t.setOrigin({tr.pos.x , tr.pos.y, tr.pos.z});
+    t.setRotation({tr.rot.x, tr.rot.y, tr.rot.z, tr.rot.w});
+    chassis -> setWorldTransform(t);
+}
+
 void VehiclePhysicsComponent::Destroy(Physics& physic_world)
 {
     physic_world.removeVehicle(vehicle.get());
+    is_valid = false;
+}
+
+bool VehiclePhysicsComponent::IsValid() const
+{
+    return is_valid;
 }

@@ -7,7 +7,6 @@
 #include "Core/Car.hpp"
 #include "Core/Track.hpp"
 #include "Core/Session.hpp"
-#include <memory>
 #include <vector>
 #include <span>
 
@@ -17,12 +16,13 @@ public:
     void Update(const SessionStateRuntime& session, float dt);
     void ApplyShapshot(const SessionStateRuntime& session);
 
-    std::vector<const Car*> GetCars()        const;
+    std::vector<const Car*> GetCars()        const; // для рендера, это не тот же самый вектор cars
+    const Car*              GetLocalCar()    const;
     const Track*            GetTrack()       const;
     const Environment*      GetEnvironment() const;
 
     void CreateCars(std::span<const SessionPlayer> players, id_type local_car_id);
-    void CreateCar(Vector3 pos, ModelID model_id, bool is_local); // Car* - наблюдатель, GameWorld владелец Cars
+    void CreateCar(const SessionPlayer& player, id_type local_car_id); // Car* - наблюдатель, GameWorld владелец Cars
     void DestroyCar(uint8_t id);
 
     void CreateTrack(std::span<const CollisionMeshData> mesh_data, ModelID id);
@@ -34,8 +34,8 @@ private:
     Physics     physic_world;
     Track       track;
     Environment env;
-    std::unique_ptr<Car> local_car;
-    std::vector<std::unique_ptr<Car>> cars;
+    const Car*  local_car;
+    std::vector<Car> cars{ MAX_PLAYERS };
 };
 
 #endif
