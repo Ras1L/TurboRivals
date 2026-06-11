@@ -10,6 +10,10 @@
 
 class NetworkManager {
 public:
+    NetworkManager() = default;
+    NetworkManager(const NetworkManager&) = delete;
+    NetworkManager& operator=(const NetworkManager&) = delete;
+
     void Init(NetworkRole role);
     void Deinit();
 

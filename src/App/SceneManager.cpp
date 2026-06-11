@@ -14,7 +14,7 @@ void SceneManager::Update(float dt)
         switch (ss.next_scene)
         {
             case Scene::GAME:
-                Set<GameScene>(std::get<SessionState>(ss.next_scene_info), context.network); // Если будет больше сцен нужно убрать конкретику про GameSceneInfo
+                Set<GameScene>(std::get<SessionState>(ss.next_scene_info), context.network);
                 break;
             case Scene::MENU:
                 Set<MenuScene>(context.network);

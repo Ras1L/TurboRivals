@@ -11,8 +11,8 @@ public:
 
 private:
     Window             window;
-    SceneManager       scene_manager {context };
     ApplicationContext context;
+    SceneManager       scene_manager {context };
 };
 
 #endif

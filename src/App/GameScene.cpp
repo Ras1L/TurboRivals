@@ -53,7 +53,7 @@ SceneSwitch GameScene::Update(float dt)
     if (my_role != NetworkRole::OFFLINE) {
         NetworkMessage msg;
         MsgQueue       queue;
-        switch (network.GetRole()) {
+        switch (my_role) {
             case NetworkRole::CLIENT: msg = MessageProcessor::Serialize(my_input.vehicle); break;
             case NetworkRole::SERVER: msg = MessageProcessor::Serialize(session_runtime); break;
             default: break;

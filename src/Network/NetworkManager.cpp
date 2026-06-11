@@ -4,10 +4,10 @@
 #include "Network/NetworkRole.hpp"
 #include "Network/NetworkStatus.hpp"
 #include "Network/Server.hpp"
-#include "Network/ENet.hpp"
 
 void NetworkManager::Init(NetworkRole role)
 {
+    this -> role = role;
     switch (role)
     {
         case NetworkRole::OFFLINE:
@@ -46,6 +46,7 @@ void NetworkManager::Deinit()
         node -> Destroy();
         ENet::Deinitialize();
     }
+    role = NetworkRole::OFFLINE;
 }
 
 bool NetworkManager::Connect(std::string ip)
