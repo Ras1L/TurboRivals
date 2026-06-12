@@ -55,7 +55,7 @@ SceneSwitch MenuScene::Update(float dt)
             static_cast<ModelID>(config.track + cars.size() + environments.size()),
             static_cast<ModelID>(config.env + cars.size()),
         };
-        session.players[0] = {true, 0, static_cast<ModelID>(config.car), {0.f, 2.f, 0.f} };
+        session.players[0] = {true, 0, static_cast<ModelID>(config.car), {-3.f, 2.f, 0.f} };
     }
     else if (mode == MenuMode::LOBBY) {
         NetworkMessage msg;

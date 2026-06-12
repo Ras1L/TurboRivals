@@ -5,7 +5,6 @@
 #include "Network/NetworkMessage.hpp"
 #include "Network/PacketType.hpp"
 #include <optional>
-#include <type_traits>
 
 
 SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& queue)
@@ -20,7 +19,9 @@ SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& que
                 const auto& new_session = std::get<packet_traits_t<PacketType::SessionState>>(p); // все возьму от сервера кроме my_id
                 session.track   = new_session.track;
                 session.env     = new_session.env;
-                session.players = std::move(new_session.players);
+                for (auto player : new_session.players) {
+                    session.players[player.id] = player;
+                }
                 break;
             }
             case PacketType::ClientConfig: {
@@ -58,7 +59,9 @@ SessionStateRuntime MessageProcessor::ApplyChanges(SessionStateRuntime& session,
         {
             case PacketType::SessionStateRuntime: {
                 const auto& new_session = std::get<packet_traits_t<PacketType::SessionStateRuntime>>(p);
-                session.players = std::move(new_session.players);
+                for (auto player : new_session.players) {
+                    session.players[player.info.id] = player;
+                }
                 break;
             }
             case PacketType::VehicleInput: {
@@ -90,10 +93,18 @@ NetworkMessage MessageProcessor::Serialize(const PacketVariant& packet) // вм�
         },
         [&msg](const SessionStateRuntime& session){
             msg.type = PacketType::SessionStateRuntime;
-            msg.payload.Write(session.players.size());
+            id_type players_count = 0;
             for (auto& player : session.players) {
-                msg.payload.Write(player);
-            }
+                if (player.info.is_active) {
+                    ++players_count;
+                }
+            };
+            msg.payload.Write(players_count);
+            for (auto& player : session.players) { // строгий порядок, сначала сколько игроков, а потом они сами
+                if (player.info.is_active) {
+                    msg.payload.Write(player);
+                }
+            };
         },
         [&msg](const SessionPlayerChoice& car){
             msg.type = PacketType::ClientConfig;
@@ -103,8 +114,17 @@ NetworkMessage MessageProcessor::Serialize(const PacketVariant& packet) // вм�
             msg.type = PacketType::SessionState;
             msg.payload.Write(session.track);
             msg.payload.Write(session.env);
+            id_type players_count = 0;
             for (auto& player : session.players) {
-                msg.payload.Write(player);
+                if (player.is_active) {
+                    ++players_count;
+                }
+            };
+            msg.payload.Write(players_count);
+            for (auto& player : session.players) { // строгий порядок, сначала сколько игроков, а потом они сами
+                if (player.is_active) {
+                    msg.payload.Write(player);
+                }
             };
         },
         [&msg](const id_type id){
@@ -128,9 +148,10 @@ PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg) // вме
 
         case PacketType::SessionStateRuntime: {
             SessionStateRuntime session;
-            session.players.resize(msg.payload.Read<decltype(session.players.size())>());
-            for (auto& player : session.players) {
-                player = msg.payload.Read<std::remove_reference_t<decltype(player)>>();
+            id_type players_count = msg.payload.Read<decltype(players_count)>();
+            for (id_type i = 0; i < players_count; ++i) {
+                SessionPlayerRuntime player = msg.payload.Read<decltype(player)>();
+                session.players[player.info.id] = player;
             }
             msg.payload.ResetOffset();
             return PacketVariant{ session };
@@ -147,8 +168,10 @@ PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg) // вме
             SessionState session;
             session.track = msg.payload.Read<decltype(session.track)>();
             session.env   = msg.payload.Read<decltype(session.env)>();
-            for (auto& player : session.players) {
-                player = msg.payload.Read<std::remove_reference_t<decltype(player)>>();
+            id_type players_count = msg.payload.Read<decltype(players_count)>();
+            for (id_type i = 0; i < players_count; ++i) {
+                SessionPlayer player = msg.payload.Read<decltype(player)>();
+                session.players[player.id] = player;
             }
             msg.payload.ResetOffset();
 
@@ -156,8 +179,7 @@ PacketVariant MessageProcessor::Deserialize(const NetworkMessage& msg) // вме
         }
 
         case PacketType::PlayerID: {
-            id_type id;
-            id = msg.payload.Read<packet_traits_t<PacketType::PlayerID>>();
+            id_type id = msg.payload.Read<packet_traits_t<PacketType::PlayerID>>();
             msg.payload.ResetOffset();
 
             return PacketVariant{ id };

@@ -6,6 +6,7 @@
 #include "Network/NetworkMessage.hpp"
 #include "Network/MessageProcessor.hpp"
 #include "Network/NetworkRole.hpp"
+#include <iostream>
 
 GameScene::GameScene(const SessionState& session, NetworkManager& network) : session(session), network(network) {}
 
@@ -23,6 +24,8 @@ void GameScene::Load()
         runtime_player.trans.pos  = info.spawn; // pos - динамическая переменная, а spawn - один и тот же
     }
     session_runtime.my_id = session.my_id;
+
+    std::cout << "->>>>>>>>>>>>" << int(session.my_id) << '\n';
 
     world.Init(session, init_data);
     cars      = world.GetCars();

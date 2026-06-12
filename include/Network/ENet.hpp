@@ -6,7 +6,7 @@
 #include <enet/enet.h>
 #include <memory>
 
-const float       tickRate     = 1.f/2.f;
+const float       tickRate     = 1.f/60.f;
 const std::string DEFAULT_IP   = "127.0.0.1";
 const uint16_t    DEFAULT_PORT = 7903;
 

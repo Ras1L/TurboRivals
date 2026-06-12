@@ -18,7 +18,7 @@ public:
 
 private:
     const std::vector<PlayerConnectionData> players_data = { // явно укажу все, чем в рантайме лаконично заполнять этот вектор
-        {true, {0, { -3.f, 2.f, 0.f}}},
+        {false, {0, { -3.f, 2.f, 0.f}}}, // id = 0 занято сервером, в MenuScene вручную ставится эта инфа
         {true, {1, {3.f, 2.f, 0.f}}},
         {true, {2, {9.f, 2.f, 0.f}}},
         {true, {3, {1.f, 2.f, -7.f}}},
