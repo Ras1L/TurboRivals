@@ -16,12 +16,9 @@ SessionState MessageProcessor::ApplyChanges(SessionState& session, MsgQueue& que
         switch (msg.type)
         {
             case PacketType::SessionState: {
-                const auto& new_session = std::get<packet_traits_t<PacketType::SessionState>>(p); // все возьму от сервера кроме my_id
-                session.track   = new_session.track;
-                session.env     = new_session.env;
-                for (auto player : new_session.players) {
-                    session.players[player.id] = player;
-                }
+                auto id = session.my_id; // все возьму кроме my_id
+                session = std::move(std::get<packet_traits_t<PacketType::SessionState>>(p));
+                session.my_id = id;
                 break;
             }
             case PacketType::ClientConfig: {
@@ -58,10 +55,9 @@ SessionStateRuntime MessageProcessor::ApplyChanges(SessionStateRuntime& session,
         switch (msg.type)
         {
             case PacketType::SessionStateRuntime: {
-                const auto& new_session = std::get<packet_traits_t<PacketType::SessionStateRuntime>>(p);
-                for (auto player : new_session.players) {
-                    session.players[player.info.id] = player;
-                }
+                auto id = session.my_id; // все возьму кроме my_id
+                session = std::move(std::get<packet_traits_t<PacketType::SessionStateRuntime>>(p));
+                session.my_id = id;
                 break;
             }
             case PacketType::VehicleInput: {

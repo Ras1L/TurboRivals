@@ -12,7 +12,7 @@ void GameWorld::Init(const SessionState& session, const GameWorldInitData& init_
     CreateCars(session.players, session.my_id);
 }
 
-void GameWorld::ApplyShapshot(const SessionStateRuntime& session) // TODO
+void GameWorld::ApplyShapshot(const SessionStateRuntime& session)
 {
     for (auto& player : session.players) {
         if (player.info.is_active) {
@@ -23,13 +23,16 @@ void GameWorld::ApplyShapshot(const SessionStateRuntime& session) // TODO
     }
 }
 
-void GameWorld::Update(const SessionStateRuntime& session, float dt) // TODO: здесь world из network должен получить пакеты об инпуте остальных игроков
+void GameWorld::Update(SessionStateRuntime& session, float dt)
 {
     for (auto& player : session.players) {
         if (player.info.is_active) {
             auto& car = cars[player.info.id];
+            auto trans = car.vehicle_physics_comp.GetVehicleTransform();
+
             car.vehicle_physics_comp.Update(player.input, dt);
-            car.model_comp.transform = car.vehicle_physics_comp.GetVehicleTransform();
+            car.model_comp.transform = trans;
+            player.trans = trans;
         }
     }
     physic_world.Update(dt);

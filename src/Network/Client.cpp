@@ -56,9 +56,9 @@ NetMsg Client::OnReceive(ENetPeer* peer, ENetPacket* packet) // а вот пак
 {
     if (peer == server) // мало ли кто пришел, может мы его не знаем
     {
-        return MessageProcessor::Serialize(peer, packet);
+        return NetMsg{ MessageProcessor::Serialize(peer, packet) };
     }
-    return std::nullopt;
+    return NetMsg{ std::nullopt };
 }
 
 void Client::SendToServer(const NetworkMessage& msg, float dt)

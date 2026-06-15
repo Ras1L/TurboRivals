@@ -13,7 +13,7 @@
 class GameWorld {
 public:
     void Init(const SessionState& session, const GameWorldInitData& init_data);
-    void Update(const SessionStateRuntime& session, float dt);
+    void Update(SessionStateRuntime& session, float dt);
     void ApplyShapshot(const SessionStateRuntime& session);
 
     std::vector<const Car*> GetCars()        const; // для рендера, это не тот же самый вектор cars
