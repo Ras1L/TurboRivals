@@ -2,6 +2,7 @@
 #include "Network/ENet.hpp"
 #include "Network/MessageProcessor.hpp"
 #include "Network/NetworkMessage.hpp"
+#include "Network/NetworkStatus.hpp"
 
 void Server::Init()
 {
@@ -18,12 +19,17 @@ void Server::DisconnectClient(id_type id)
     for (auto& client : clients) {
         if (client.second.id == id) {
             ENet::DisconnectPeer(server.get(), client.first); // Если принудительно отсоединили кого-то, то onDisconnect у обоих сторон должен сработать
+            connection_data_manager.ReleaseConnectionData(client.second);
         }
     }
 }
 
 void Server::OnConnect(ENetPeer* peer) // Здесь сервер не меняет состояние он почти всегда просто IDLE
 {
+    if (status == NetworkStatus::PLAYING)
+    {
+        ENet::DisconnectPeer(server.get(), peer);
+    }
     auto p = connection_data_manager.GetFreeConnectionData();
     if (p.first)
     {

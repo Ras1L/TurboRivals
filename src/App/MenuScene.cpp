@@ -10,6 +10,7 @@
 #include "rlImGui.h"
 #include "imgui.h"
 #include <array>
+#include <iostream>
 
 constexpr const char* GAME_TITLE = "TurboRivals";
 
@@ -141,8 +142,7 @@ void MenuScene::DrawLobby() const
         SwitchToGame();
     }
     if (ImGui::Button("Exit")) {
-        network.Deinit();
-        mode = MenuMode::MAIN;
+        SwitchToMain();
     }
 
     ImGui::End();
@@ -177,7 +177,21 @@ void MenuScene::SwitchToLobby() const
 
 void MenuScene::SwitchToGame() const
 {
-    should_switch = true;
-    next_scene = Scene::GAME;
-    network.SetStatus(NetworkStatus::PLAYING);
+    auto status = network.GetStatus();
+    std::cout << "\n Im try with " << int(status) << ' ' << int(config.mode) << '\n';
+    if (config.mode == NetworkRole::CLIENT &&
+       (status == NetworkStatus::DISCONNECTED || status == NetworkStatus::IDLE)) {
+        SwitchToMain();
+    }
+    else {
+        should_switch = true;
+        next_scene = Scene::GAME;
+        network.SetStatus(NetworkStatus::PLAYING);
+    }
+}
+
+void MenuScene::SwitchToMain() const
+{
+    network.Deinit();
+    mode = MenuMode::MAIN;
 }

@@ -37,6 +37,7 @@ private:
 
     void SwitchToLobby() const;
     void SwitchToGame() const;
+    void SwitchToMain() const;
 
 private:
     mutable MenuMode   mode = MenuMode::MAIN;

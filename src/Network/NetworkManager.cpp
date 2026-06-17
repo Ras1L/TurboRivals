@@ -43,10 +43,14 @@ void NetworkManager::Init(NetworkRole role)
 void NetworkManager::Deinit()
 {
     if (node) {
+        node -> status = NetworkStatus::NONE; // чтобы не читать старую память, возможно, перестраховка
         node -> Destroy();
+        node.reset(); // NetworkManager живет почти всю программу, здесь он должен обнуляться, а то double free, segfault и другие прочие всякие разные
         ENet::Deinitialize();
     }
     role = NetworkRole::OFFLINE;
+    client = nullptr;
+    server = nullptr;
 }
 
 bool NetworkManager::Connect(std::string ip)

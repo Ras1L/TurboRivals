@@ -12,7 +12,7 @@ public:
     void Init() override;
     void Destroy() override;
 
-    void DisconnectClient(id_type id); // нужен второй std::unordered_map<id, ENetPeer> для быстрого выполнения
+    void DisconnectClient(id_type id);
 
     void SendToClient(const NetworkMessage& msg, id_type id, float dt) override;
     void SendToClient(const NetworkMessage& msg, ENetPeer* peer, float dt);
