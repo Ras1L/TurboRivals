@@ -7,10 +7,9 @@
 #include <cstdio>
 #include <cstring>
 
-const bool network_debug = true;
+const bool network_debug = false;
 
-const size_t IP_SIZE = 64;
-char beauty_ip[IP_SIZE];
+char beauty_ip[IP_SIZE]; // для красивого вывода ip в сообщениях
 
 bool   enet_init_success      = true;
 size_t clients_for_connection = 8;

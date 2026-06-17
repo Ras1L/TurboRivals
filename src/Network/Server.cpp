@@ -1,4 +1,5 @@
 #include "Network/Server.hpp"
+#include "Core/Session.hpp"
 #include "Network/ENet.hpp"
 #include "Network/MessageProcessor.hpp"
 #include "Network/NetworkMessage.hpp"
@@ -11,7 +12,7 @@ void Server::Init()
 
 void Server::Destroy()
 {
-    ENet::DestroyHost(server.get());
+    server.reset();
 }
 
 void Server::DisconnectClient(id_type id)
@@ -34,8 +35,8 @@ void Server::OnConnect(ENetPeer* peer) // Здесь сервер не меня�
     if (p.first)
     {
         auto player_data = SessionPlayerConnection{ p.second.id, p.second.spawn };
-        peer -> data = new SessionPlayerConnection{ player_data }; // не бросайте в меня камни, это нормально если работаешь с Си API (ENet такой и есть)
-        clients.emplace(peer, player_data);
+        auto [it, inserted] = clients.emplace(peer, player_data);
+        peer -> data = &it -> second;
 
         SendToClient(MessageProcessor::Serialize(player_data.id), peer, tickRate); // tickRate если передать, то 100% отправится
     }
@@ -47,8 +48,8 @@ void Server::OnDisconnect(ENetPeer* peer)
     if (it != clients.cend())
     {
         connection_data_manager.ReleaseConnectionData(it -> second);
-        delete static_cast<SessionPlayerConnection*>(peer -> data); // не кросайтесь бамнями
         clients.erase(peer);
+        peer -> data = nullptr;
     }
 }
 

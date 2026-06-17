@@ -10,6 +10,8 @@ public:
     virtual void        Render() const   = 0;
     virtual void        Unload()         = 0;
 
+    virtual ~IScene() = default;
+
 protected:
     mutable bool should_switch = false;
     mutable Scene next_scene;

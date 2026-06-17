@@ -7,6 +7,8 @@ class IServer {
 public:
     virtual void SendToClient(const NetworkMessage& msg, id_type id, float dt) = 0;
     virtual void SendBroadcast(const NetworkMessage& msg, float dt)            = 0;
+
+    virtual ~IServer() = default;
 };
 
 #endif

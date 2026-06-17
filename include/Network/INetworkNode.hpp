@@ -15,6 +15,8 @@ public:
     virtual void   OnDisconnect(ENetPeer* peer)                  = 0;
     virtual NetMsg OnReceive(ENetPeer* peer, ENetPacket* packet) = 0;
 
+    virtual ~INetworkNode() = default;
+
     NetworkStatus status;
 };
 

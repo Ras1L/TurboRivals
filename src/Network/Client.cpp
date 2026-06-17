@@ -16,7 +16,7 @@ void Client::Destroy()
     if (is_connected) {
         DisconnectFromServer();
     }
-    ENet::DestroyHost(client.get());
+    client.reset();
 }
 
 bool Client::ConnectToServer(std::string ip)

@@ -45,19 +45,24 @@ void NetworkManager::Deinit()
     if (node) {
         node -> status = NetworkStatus::NONE; // чтобы не читать старую память, возможно, перестраховка
         node -> Destroy();
-        node.reset(); // NetworkManager живет почти всю программу, здесь он должен обнуляться, а то double free, segfault и другие прочие всякие разные
+        node = nullptr;
         ENet::Deinitialize();
+
+        role = NetworkRole::OFFLINE;
+        client = nullptr;
+        server = nullptr;
     }
-    role = NetworkRole::OFFLINE;
-    client = nullptr;
-    server = nullptr;
 }
 
 bool NetworkManager::Connect(std::string ip)
 {
     if (node) {
         if (client) {
-            return client -> ConnectToServer(ip);
+            bool is_success = client -> ConnectToServer(ip);
+            if (is_success) {
+                node -> status = NetworkStatus::CONNECTED;
+            }
+            return is_success;
         }
         if (server) {
             return true;

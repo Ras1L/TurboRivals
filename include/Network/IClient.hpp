@@ -9,6 +9,8 @@ public:
     virtual void SendToServer(const NetworkMessage& msg, float dt) = 0;
     virtual bool ConnectToServer(std::string ip)                   = 0;
 
+    virtual ~IClient() = default;
+
     bool is_connected = false;
 };
 

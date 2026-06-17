@@ -10,10 +10,18 @@ const float       tickRate     = 1.f/60.f;
 const std::string DEFAULT_IP   = "127.0.0.1";
 const uint16_t    DEFAULT_PORT = 7903;
 
+const size_t IP_SIZE = 64;
+
 namespace ENet
 {
     struct ENetHostDeleter {
         void operator()(ENetHost* server) {
+            char beauty_ip[IP_SIZE];
+            enet_address_get_host_ip(&server -> address, beauty_ip, IP_SIZE);
+            printf("INFO: ENET: Destroy host %s:%u\n",
+                beauty_ip,
+                server -> address.port
+            );
             enet_host_destroy(server);
         }
     };
