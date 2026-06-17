@@ -7,6 +7,7 @@ enum class ModelID : uint8_t {
     CAR__PORSCHE_911_CARRERA_993,
     CAR__DODGE_CHARGER_RT_1969,
     CAR__HORAI_BX300_1996,
+    CAR__GOLF_MK2,
     
     ENV__SNOW_MOUNTAINS,
 

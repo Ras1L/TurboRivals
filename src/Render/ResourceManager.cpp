@@ -7,6 +7,7 @@ ResourceManager::ResourceManager()
         "assets/models/porsche_911_carrera_993_gt2psx_style_v2.glb",
         "assets/models/1969_dodge_charger_rt_gt2psx_style.glb",
         "assets/models/ps1_gt1-style_model_-_1996_horai_bx300.glb",
+        "assets/models/golf_mk2_gt_psx_style.glb",
     
         "assets/environments/3d_skybox_montain__game-ready.glb",
 

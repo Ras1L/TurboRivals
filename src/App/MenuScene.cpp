@@ -27,10 +27,11 @@ static constexpr std::array<const char*, 1> environments = {
     "Mountains"
 };
 
-static constexpr std::array<const char*, 3> cars = { // если что то добавил в игру, то измени и enum и выбор в меню
+static constexpr std::array<const char*, 4> cars = { // если что то добавил в игру, то измени и enum и выбор в меню
     "Porsche 911 Carrera 993",
     "Dodge Charger R/T 1969",
-    "Horai BX300 1996"
+    "Horai BX300 1996",
+    "Volkswagen Golf MK2"
 };
 
 MenuScene::MenuScene(NetworkManager& network) : network(network) {}
